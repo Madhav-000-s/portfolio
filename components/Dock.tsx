@@ -4,10 +4,14 @@ import { useRef, useState } from "react"
 import Image from "next/image"
 import { dockApps } from "@/constants"
 import gsap from "gsap"
+import useWindowStore from "@/store/useWindowStore"
 
 const Dock = () => {
   const dockRef = useRef<HTMLDivElement>(null)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const openwindow = useWindowStore((state) => state.openwindow)
+  const closewindow = useWindowStore((state) => state.closewindow)
+  const windows = useWindowStore((state) => state.windows)
 
   const handleMouseEnter = (index: number, e: React.MouseEvent<HTMLDivElement>) => {
     setHoveredIndex(index)
@@ -53,7 +57,21 @@ const Dock = () => {
             )}
 
             {/* Icon */}
-            <div className="dock-icon">
+            <div
+              className="dock-icon"
+              onClick={() => {
+                if (!app.canOpen) return
+
+                const windowState = windows[app.id]
+                if (windowState?.isOpen) {
+                  console.log("Closing window:", app.id)
+                  closewindow(app.id)
+                } else {
+                  console.log("Opening window:", app.id)
+                  openwindow(app.id)
+                }
+              }}
+            >
               <Image
                 src={`/images/${app.icon}`}
                 alt={app.name}
