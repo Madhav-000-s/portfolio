@@ -1,6 +1,46 @@
 @import url("https://fonts.googleapis.com/css2?family=Georama:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
 @import "tailwindcss";
 
+/* Theme CSS Variables */
+:root {
+  /* Light theme (default fallback) */
+  --panel-bg: #f5f5f5;
+  --panel-text: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #d0d0d0;
+  --muted-text: #666666;
+  --accent: #0078d4;
+  --hover-bg: #e5e5e5;
+  --popover-bg: rgba(240, 240, 245, 0.95);
+  --popover-border: #c0c0c0;
+}
+
+.dark {
+  /* Dark theme */
+  --panel-bg: #1e1e1e;
+  --panel-text: #e0e0e0;
+  --card-bg: #2b2b2b;
+  --card-border: #3d3d3d;
+  --muted-text: #a0a0a0;
+  --accent: #0078d4;
+  --hover-bg: #3d3d3d;
+  --popover-bg: rgba(43, 43, 43, 0.95);
+  --popover-border: #3d3d3d;
+}
+
+.light {
+  /* Light theme (explicit) */
+  --panel-bg: #f5f5f5;
+  --panel-text: #1a1a1a;
+  --card-bg: #ffffff;
+  --card-border: #d0d0d0;
+  --muted-text: #666666;
+  --accent: #0078d4;
+  --hover-bg: #e5e5e5;
+  --popover-bg: rgba(240, 240, 245, 0.95);
+  --popover-border: #c0c0c0;
+}
+
 html,
 body {
   width: 100dvw;
@@ -10,12 +50,28 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 0;
+  pointer-events: none;
 }
 
 @theme {
   --font-georama: "Georama", sans-serif;
   --font-roboto: "Roboto Mono", monospace;
   --breakpoint-3xl: 1920px;
+
+  /* Linux Theme Colors */
+  --linux-panel-bg: #1e1e1e;
+  --linux-panel-text: #e0e0e0;
+  --linux-taskbar-bg: #2d2d2d;
+  --linux-accent: #0078d4;
 }
 
 @utility flex-center {
@@ -36,7 +92,7 @@ body {
   }
 
   nav {
-    @apply flex justify-between items-center bg-white/50 backdrop-blur-3xl p-2 px-5 select-none;
+    @apply flex justify-between items-center bg-[var(--panel-bg)] p-2 px-5 select-none shadow-md;
 
     div {
       @apply flex items-center max-sm:w-full max-sm:justify-center gap-5;
@@ -50,46 +106,46 @@ body {
       @apply flex items-center gap-5 max-sm:hidden;
 
       p {
-        @apply text-sm cursor-pointer hover:underline transition-all;
+        @apply text-sm cursor-pointer hover:bg-[var(--hover-bg)] px-3 py-1 rounded transition-all text-[var(--panel-text)];
       }
     }
 
     time {
-      @apply text-sm font-medium text-black;
+      @apply text-sm font-medium text-[var(--panel-text)];
     }
   }
 }
 
 @layer components {
   .icon {
-    @apply p-1 hover:bg-gray-200 rounded hover:cursor-default;
+    @apply p-1 hover:bg-[var(--hover-bg)] rounded hover:cursor-default transition-colors;
   }
 
   #welcome {
-    @apply text-gray-200 flex flex-col justify-center items-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none max-sm:h-screen max-sm:w-full max-sm:px-10;
+    @apply text-[#e0e0e0] flex flex-col justify-center items-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none max-sm:h-screen max-sm:w-full max-sm:px-10;
 
     .small-screen {
-      @apply sm:hidden m-7 bg-red-300/20 backdrop-blur-lg p-3 rounded-md absolute top-10;
+      @apply sm:hidden m-7 bg-[#2d2d2d]/90 p-3 rounded-md absolute top-10 border border-[#3d3d3d];
 
       p {
-        @apply flex-1 text-[16px] text-center font-roboto text-gray-400;
+        @apply flex-1 text-[16px] text-center font-roboto text-[#a0a0a0];
       }
     }
   }
 
   #dock {
-    @apply absolute bottom-5 left-1/2 -translate-x-1/2 z-50 select-none max-sm:hidden;
+    @apply absolute bottom-4 left-1/2 -translate-x-1/2 z-50 select-none max-sm:hidden;
 
     .dock-container {
-      @apply bg-white/20 backdrop-blur-md justify-between rounded-2xl p-1.5 flex items-end gap-1.5;
+      @apply bg-[#1a1a1a]/90 backdrop-blur-xl justify-center rounded-full px-6 py-3 flex items-center gap-3 shadow-[0_4px_30px_rgba(0,0,0,0.4)] border border-white/10;
     }
 
     .tooltip {
-      @apply py-1 px-3 w-fit text-center text-xs rounded-md bg-blue-200 text-blue-900 shadow-2xl;
+      @apply py-1 px-3 w-fit text-center text-sm rounded-full bg-[#1a1a1a]/90 backdrop-blur-xl text-[#e0e0e0] shadow-xl border border-white/10;
     }
 
     .dock-icon {
-      @apply size-14 3xl:size-20 cursor-pointer;
+      @apply size-20 3xl:size-24 cursor-pointer rounded-full p-2 hover:bg-white/10 transition-all duration-200;
 
       img {
         @apply object-cover object-center;
@@ -98,41 +154,54 @@ body {
   }
 
   #window-controls {
-    @apply flex gap-2;
+    @apply flex gap-1.5 ml-auto;
+
+    .minimize,
+    .maximize,
+    .close {
+      @apply size-6 cursor-pointer flex items-center justify-center rounded hover:bg-[#4d4d4d] transition-colors text-[#a0a0a0] hover:text-[#e0e0e0];
+    }
+
+    .minimize::before {
+      content: "−";
+      @apply text-sm font-bold;
+    }
+
+    .maximize::before {
+      content: "□";
+      @apply text-xs;
+    }
 
     .close {
-      @apply size-3.5 rounded-full bg-[#ff6157] cursor-pointer;
+      @apply hover:bg-[#e74c3c] hover:text-white;
     }
 
-    .minimize {
-      @apply size-3.5 rounded-full bg-[#ffc030];
-    }
-
-    .maximize {
-      @apply size-3.5 rounded-full bg-[#2acb42];
+    .close::before {
+      content: "×";
+      @apply text-lg font-bold;
     }
   }
 
   #window-header {
-    @apply flex items-center justify-between px-4 py-3 rounded-t-lg bg-gray-50 border-b border-gray-200 select-none text-sm text-gray-400;
+    @apply flex items-center justify-between px-4 py-2 rounded-t-lg bg-[#3c3c3c] border-b border-[#252525] select-none text-sm text-[#e0e0e0] shadow-sm;
   }
 
   #safari {
-    @apply w-4xl absolute top-40 left-2/12 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-4xl absolute top-40 left-2/12 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
 
     .search {
-      @apply flex items-center gap-3 w-2/3 bg-white border border-gray-300 rounded-lg px-3 py-2;
+      @apply flex items-center gap-3 w-2/3 bg-[#3c3c3c] border border-[#4d4d4d] rounded-lg px-3 py-2;
 
       input {
-        @apply placeholder:text-gray-400;
+        @apply placeholder:text-[#a0a0a0] text-[#e0e0e0] bg-transparent;
       }
     }
 
     .blog {
-      @apply bg-white p-10 max-w-3xl mx-auto;
+      @apply bg-[#2b2b2b] p-10 max-w-3xl mx-auto;
 
       h2 {
-        @apply text-xl font-bold text-pink-600 mb-10;
+        @apply text-xl font-bold text-pink-500 mb-10;
       }
 
       .blog-post {
@@ -146,15 +215,15 @@ body {
           @apply col-span-10 space-y-3;
 
           p {
-            @apply text-xs text-gray-500;
+            @apply text-xs text-[#a0a0a0];
           }
 
           h3 {
-            @apply font-semibold text-base text-gray-800;
+            @apply font-semibold text-base text-[#e0e0e0];
           }
 
           a {
-            @apply text-blue-600 text-xs hover:underline flex items-center gap-3;
+            @apply text-blue-400 text-xs hover:underline flex items-center gap-3;
           }
         }
       }
@@ -162,7 +231,7 @@ body {
   }
 
   #terminal {
-    @apply w-xl absolute top-32 left-1/12 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-xl absolute top-32 left-1/12 bg-[#1e1e1e] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
 
     h2 {
       @apply font-bold text-sm text-center w-full;
@@ -208,14 +277,14 @@ body {
   }
 
   #contact {
-    @apply max-w-2xl absolute top-60 left-5/12 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply max-w-2xl absolute top-60 left-5/12 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
 
     h2 {
-      @apply font-bold text-sm text-center w-full;
+      @apply font-bold text-sm text-center w-full text-[#e0e0e0];
     }
 
     h3 {
-      @apply text-xl font-semibold;
+      @apply text-xl font-semibold text-[#e0e0e0];
     }
 
     ul {
@@ -236,21 +305,21 @@ body {
   }
 
   #photos {
-    @apply max-w-3xl absolute top-96 left-1/2 -translate-y-1/2 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply max-w-3xl absolute top-96 left-1/2 -translate-y-1/2 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
 
     .sidebar {
-      @apply w-3/12 flex-none bg-gray-50 border-r border-gray-200 flex flex-col p-5;
+      @apply w-3/12 flex-none bg-[#323232] border-r border-[#3d3d3d] flex flex-col p-5;
 
       h2 {
-        @apply text-xs font-medium text-gray-400 mb-1;
+        @apply text-xs font-medium text-[#a0a0a0] mb-1;
       }
 
       ul {
         li {
-          @apply flex space-y-1 items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-colors;
+          @apply flex space-y-1 items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-colors text-[#e0e0e0];
 
           &:first-child {
-            @apply bg-blue-100 text-blue-700;
+            @apply bg-[#0078d4] text-white;
           }
 
           img {
@@ -296,7 +365,7 @@ body {
   }
 
   #resume {
-    @apply w-3xl absolute top-16 left-7/12 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-3xl absolute top-16 left-7/12 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
 
     #window-header {
       h2 {
@@ -305,40 +374,40 @@ body {
     }
 
     .pdf-controls {
-      @apply flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200;
+      @apply flex items-center justify-between px-4 py-3 bg-[#3c3c3c] border-b border-[#252525];
 
       .control-btn {
-        @apply p-2 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+        @apply p-2 rounded hover:bg-[#4d4d4d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-[#e0e0e0];
       }
     }
 
     .pdf-container {
-      @apply flex items-center justify-center p-4 bg-gray-100 max-h-[70vh] overflow-auto;
+      @apply flex items-center justify-center p-4 bg-[#323232] max-h-[70vh] overflow-auto;
     }
   }
 
   #finder {
-    @apply w-4xl absolute left-40 top-20 bg-white shadow-2xl drop-shadow-2xl overflow-hidden rounded-xl;
+    @apply w-4xl absolute left-40 top-20 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl overflow-hidden rounded-xl;
 
     .finder-content {
       @apply flex h-[70vh];
     }
 
     .sidebar {
-      @apply w-48 bg-gray-50 border-r border-gray-200 flex flex-col p-5 space-y-3;
+      @apply w-48 bg-[#323232] border-r border-[#3d3d3d] flex flex-col p-5 space-y-3;
 
       h3 {
-        @apply text-xs font-medium text-gray-400 mb-1;
+        @apply text-xs font-medium text-[#a0a0a0] mb-1;
       }
 
       ul {
         @apply space-y-1;
 
         li {
-          @apply flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-colors text-gray-700 hover:bg-gray-200;
+          @apply flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-colors text-[#e0e0e0] hover:bg-[#3d3d3d];
 
           &.active {
-            @apply bg-blue-100 text-blue-700;
+            @apply bg-[#0078d4] text-white;
           }
 
           img {
@@ -353,21 +422,21 @@ body {
     }
 
     .main-content {
-      @apply flex-1 flex flex-col bg-white;
+      @apply flex-1 flex flex-col bg-[#2b2b2b];
     }
 
     .toolbar {
-      @apply flex items-center gap-4 px-4 py-3 bg-gray-50 border-b border-gray-200;
+      @apply flex items-center gap-4 px-4 py-3 bg-[#3c3c3c] border-b border-[#252525];
 
       .back-btn {
-        @apply px-3 py-1 text-sm text-blue-600 hover:bg-gray-200 rounded transition-colors;
+        @apply px-3 py-1 text-sm text-blue-400 hover:bg-[#4d4d4d] rounded transition-colors;
       }
 
       .search-bar {
-        @apply flex items-center gap-2 flex-1 max-w-md bg-white border border-gray-300 rounded-lg px-3 py-2;
+        @apply flex items-center gap-2 flex-1 max-w-md bg-[#2b2b2b] border border-[#4d4d4d] rounded-lg px-3 py-2;
 
         input {
-          @apply flex-1 text-sm outline-none;
+          @apply flex-1 text-sm outline-none text-[#e0e0e0] bg-transparent placeholder:text-[#a0a0a0];
         }
       }
     }
@@ -376,7 +445,7 @@ body {
       @apply flex-1 p-6 overflow-auto grid grid-cols-4 gap-6 content-start;
 
       .file-item {
-        @apply flex flex-col items-center gap-2 cursor-pointer hover:bg-gray-100 p-3 rounded-lg transition-colors;
+        @apply flex flex-col items-center gap-2 cursor-pointer hover:bg-[#3d3d3d] p-3 rounded-lg transition-colors;
 
         .file-icon {
           @apply w-16 h-16 flex items-center justify-center;
@@ -387,7 +456,7 @@ body {
         }
 
         .file-name {
-          @apply text-sm text-center text-gray-700 break-words w-full;
+          @apply text-sm text-center text-[#e0e0e0] break-words w-full;
         }
       }
 
@@ -395,31 +464,31 @@ body {
         @apply col-span-4 flex items-center justify-center h-full;
 
         p {
-          @apply text-gray-500 text-sm;
+          @apply text-[#a0a0a0] text-sm;
         }
       }
     }
   }
 
   #txtfile {
-    @apply w-md absolute top-36 right-32 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-md absolute top-36 right-32 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
 
     h2 {
-      @apply font-bold text-sm text-center w-full;
+      @apply font-bold text-sm text-center w-full text-[#e0e0e0];
     }
   }
 
   #imgfile {
-    @apply w-xl absolute top-40 left-2/12 bg-white shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-xl absolute top-40 left-2/12 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
 
     #window-header {
       p {
-        @apply font-bold text-[#5f6266];
+        @apply font-bold text-[#e0e0e0];
       }
     }
 
     .preview {
-      @apply p-2 bg-gray-200 max-h-[70vh];
+      @apply p-2 bg-[#323232] max-h-[70vh];
 
       img {
         @apply w-full h-fit object-contain object-center;
@@ -432,14 +501,14 @@ body {
 
     ul {
       li {
-        @apply absolute z-0 select-none flex items-center flex-col;
+        @apply absolute z-0 select-none flex items-center flex-col cursor-pointer;
 
         img {
-          @apply group-hover:bg-gray-950/10 p-1 rounded-md;
+          @apply group-hover:bg-white/10 p-1 rounded;
         }
 
         p {
-          @apply text-sm text-white text-center px-1 rounded-md group-hover:bg-blue-500 transition-colors max-w-40;
+          @apply text-sm text-[#e0e0e0] text-center px-2 py-0.5 rounded group-hover:bg-[#0078d4] transition-colors max-w-40 shadow-[0_0_4px_rgba(0,0,0,0.8)];
         }
       }
     }

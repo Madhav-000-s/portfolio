@@ -38,21 +38,15 @@ const navIcons = [
 const dockApps = [
   {
     id: "finder",
-    name: "Portfolio", 
+    name: "Portfolio",
     icon: "finder.png",
     canOpen: true,
   },
   {
-    id: "safari",
-    name: "Articles",
-    icon: "safari.png",
-    canOpen: true,
-  },
-  {
-    id: "photos",
-    name: "Gallery",
-    icon: "photos.png",
-    canOpen: true,
+    id: "games",
+    name: "Games",
+    icon: "games.png",
+    canOpen: false,
   },
   {
     id: "contact",
@@ -62,7 +56,7 @@ const dockApps = [
   },
   {
     id: "terminal",
-    name: "Skills", 
+    name: "Skills",
     icon: "terminal.png",
     canOpen: true,
   },
@@ -187,8 +181,6 @@ const WINDOW_CONFIG = {
   finder: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
   contact: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
   resume: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
-  safari: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
-  photos: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
   terminal: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
   txtfile: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
   imgfile: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },

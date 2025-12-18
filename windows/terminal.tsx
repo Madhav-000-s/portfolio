@@ -11,13 +11,12 @@ const Terminal = () => {
     <div id="terminal">
       {/* Window Header */}
       <div id="window-header">
+        <h2>Skills</h2>
         <div id="window-controls">
-          <div className="close" onClick={() => closewindow("terminal")} />
           <div className="minimize" />
           <div className="maximize" />
+          <div className="close" onClick={() => closewindow("terminal")} />
         </div>
-        <h2>Skills</h2>
-        <div className="w-16" /> {/* Spacer for centering */}
       </div>
 
       {/* Terminal Content */}

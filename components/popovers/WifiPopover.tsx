@@ -10,22 +10,22 @@ const wifiNetworks = [
 export default function WifiPopover() {
   return (
     <div className="py-2">
-      <div className="px-4 py-2 border-b border-gray-200">
-        <h3 className="font-semibold text-sm">WiFi Networks</h3>
+      <div className="px-4 py-2 border-b border-[var(--card-border)]">
+        <h3 className="font-semibold text-sm text-[var(--panel-text)]">WiFi Networks</h3>
       </div>
       <div className="max-h-60 overflow-auto">
         {wifiNetworks.map((network) => (
           <button
             key={network.name}
-            className="w-full px-4 py-3 hover:bg-gray-100 transition-colors flex items-center justify-between"
+            className="w-full px-4 py-3 hover:bg-[var(--hover-bg)] transition-colors flex items-center justify-between"
           >
             <div className="flex items-center gap-3">
-              <Wifi className="w-4 h-4" />
-              <span className="text-sm">{network.name}</span>
+              <Wifi className="w-4 h-4 text-[var(--panel-text)]" />
+              <span className="text-sm text-[var(--panel-text)]">{network.name}</span>
             </div>
             <div className="flex items-center gap-2">
               {network.connected && (
-                <span className="text-xs text-blue-600 font-medium">Connected</span>
+                <span className="text-xs text-blue-500 font-medium">Connected</span>
               )}
               <div className="flex gap-0.5">
                 {[...Array(4)].map((_, i) => (
@@ -36,8 +36,8 @@ export default function WifiPopover() {
                       (network.signal === "good" && i < 3) ||
                       (network.signal === "medium" && i < 2) ||
                       (network.signal === "weak" && i < 1)
-                        ? "bg-gray-800"
-                        : "bg-gray-300"
+                        ? "bg-[var(--panel-text)]"
+                        : "bg-[var(--card-border)]"
                     }`}
                     style={{ height: `${(i + 1) * 3}px` }}
                   />

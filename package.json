@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@radix-ui/react-popover": "^1.1.15",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.4.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "gsap": "^3.13.0",
@@ -21,6 +23,7 @@
     "react-pdf": "^10.2.0",
     "react-tooltip": "^5.30.0",
     "tailwind-merge": "^3.4.0",
+    "three": "^0.182.0",
     "zustand": "^5.0.9"
   },
   "devDependencies": {

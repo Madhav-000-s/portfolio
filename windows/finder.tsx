@@ -86,13 +86,12 @@ const Finder = () => {
     <div id="finder">
       {/* Window Header */}
       <div id="window-header">
+        <h2>Portfolio</h2>
         <div id="window-controls">
-          <div className="close" onClick={() => closewindow("finder")} />
           <div className="minimize" />
           <div className="maximize" />
+          <div className="close" onClick={() => closewindow("finder")} />
         </div>
-        <h2>Portfolio</h2>
-        <div className="w-16" />
       </div>
 
       <div className="finder-content">

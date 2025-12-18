@@ -13,45 +13,70 @@ const Dock = () => {
   const closewindow = useWindowStore((state) => state.closewindow)
   const windows = useWindowStore((state) => state.windows)
 
-  const handleMouseEnter = (index: number, e: React.MouseEvent<HTMLDivElement>) => {
-    setHoveredIndex(index)
-    const iconElement = e.currentTarget.querySelector(".dock-icon")
-    if (iconElement) {
-      gsap.to(iconElement, {
-        scale: 1.5,
-        y: -20,
-        duration: 0.3,
-        ease: "back.out(1.7)",
-      })
-    }
+  const animateIcons = (hoveredIdx: number | null) => {
+    if (!dockRef.current) return
+
+    const icons = dockRef.current.querySelectorAll(".dock-icon")
+
+    icons.forEach((icon, i) => {
+      if (hoveredIdx === null) {
+        // Reset all icons
+        gsap.to(icon, {
+          scale: 1,
+          y: 0,
+          duration: 0.3,
+          ease: "power2.out",
+        })
+      } else {
+        // Calculate distance from hovered icon
+        const distance = Math.abs(hoveredIdx - i)
+
+        let scale = 1
+        let y = 0
+
+        if (distance === 0) {
+          scale = 1.4
+          y = -16
+        } else if (distance === 1) {
+          scale = 1.2
+          y = -8
+        } else if (distance === 2) {
+          scale = 1.1
+          y = -4
+        }
+
+        gsap.to(icon, {
+          scale,
+          y,
+          duration: 0.2,
+          ease: "power2.out",
+        })
+      }
+    })
   }
 
-  const handleMouseLeave = (_index: number, e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseEnter = (index: number) => {
+    setHoveredIndex(index)
+    animateIcons(index)
+  }
+
+  const handleMouseLeave = () => {
     setHoveredIndex(null)
-    const iconElement = e.currentTarget.querySelector(".dock-icon")
-    if (iconElement) {
-      gsap.to(iconElement, {
-        scale: 1,
-        y: 0,
-        duration: 0.3,
-        ease: "power2.out",
-      })
-    }
+    animateIcons(null)
   }
 
   return (
-    <section id="dock">
+    <section id="dock" onMouseLeave={handleMouseLeave}>
       <div ref={dockRef} className="dock-container">
         {dockApps.map((app, index) => (
           <div
             key={app.id}
             className="relative"
-            onMouseEnter={(e) => handleMouseEnter(index, e)}
-            onMouseLeave={(e) => handleMouseLeave(index, e)}
+            onMouseEnter={() => handleMouseEnter(index)}
           >
             {/* Tooltip */}
             {hoveredIndex === index && (
-              <div className="tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-8 whitespace-nowrap animate-in fade-in duration-200 z-10">
+              <div className="tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-3 whitespace-nowrap animate-in fade-in duration-200 z-10">
                 {app.name}
               </div>
             )}
@@ -64,10 +89,8 @@ const Dock = () => {
 
                 const windowState = windows[app.id]
                 if (windowState?.isOpen) {
-                  console.log("Closing window:", app.id)
                   closewindow(app.id)
                 } else {
-                  console.log("Opening window:", app.id)
                   openwindow(app.id)
                 }
               }}
@@ -80,6 +103,11 @@ const Dock = () => {
                 className="w-full h-full"
               />
             </div>
+
+            {/* Active indicator dot */}
+            {windows[app.id]?.isOpen && (
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#0078d4] rounded-full" />
+            )}
           </div>
         ))}
       </div>

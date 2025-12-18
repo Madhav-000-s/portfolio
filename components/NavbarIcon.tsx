@@ -18,7 +18,7 @@ export default function NavbarIcon({ icon, popoverContent }: NavbarIconProps) {
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-80 bg-white/90 backdrop-blur-xl border-gray-200 shadow-2xl"
+        className="w-80 bg-[var(--popover-bg)] backdrop-blur-xl border-[var(--popover-border)] shadow-2xl rounded-xl"
       >
         {popoverContent}
       </PopoverContent>

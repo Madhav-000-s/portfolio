@@ -41,13 +41,12 @@ const Resume = () => {
     <div id="resume">
       {/* Window Header */}
       <div id="window-header">
+        <h2>Resume</h2>
         <div id="window-controls">
-          <div className="close" onClick={() => closewindow("resume")} />
           <div className="minimize" />
           <div className="maximize" />
+          <div className="close" onClick={() => closewindow("resume")} />
         </div>
-        <h2>Resume</h2>
-        <div className="w-16" />
       </div>
 
       {/* PDF Controls */}
