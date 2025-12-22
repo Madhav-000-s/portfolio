@@ -1,6 +1,6 @@
 "use client"
 
-import { navLinks, navIcons } from "@/constants"
+import { navIcons } from "@/constants"
 import NavbarTime from "./NavbarTime"
 import NavbarIcon from "./NavbarIcon"
 import WifiPopover from "./popovers/WifiPopover"
@@ -25,16 +25,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav>
-      <div>
-        <ul>
-          {navLinks.map(({ id, name }) => (
-            <li key={id}>
-              <p>{name}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <nav className="flex justify-end">
       <div>
         <NavbarTime />
         <div className="flex items-center gap-2">

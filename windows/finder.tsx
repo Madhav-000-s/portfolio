@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { Search } from "lucide-react"
+import { useState, useMemo, useEffect } from "react"
+import { Search, Loader2, X } from "lucide-react"
 import Image from "next/image"
 import { locations } from "@/constants"
 import useWindowStore from "@/store/useWindowStore"
+import type { ProjectFolder } from "@/lib/github"
 
 type Location = {
   id: number
@@ -17,9 +18,69 @@ type Location = {
 
 const Finder = () => {
   const { closewindow, openwindow } = useWindowStore()
+  const finderData = useWindowStore((state) => state.windows.finder?.data)
   const [activeLocation, setActiveLocation] = useState<Location>(locations.work)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [currentFolder, setCurrentFolder] = useState<any>(null)
+  const [pinnedProjects, setPinnedProjects] = useState<ProjectFolder[]>([])
+  const [archivedProjects, setArchivedProjects] = useState<ProjectFolder[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [hasShownArchivePopup, setHasShownArchivePopup] = useState(false)
+  const [showArchivePopup, setShowArchivePopup] = useState(false)
+
+  // Fetch projects from GitHub API
+  useEffect(() => {
+    async function fetchProjects() {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const response = await fetch("/api/github")
+        const data = await response.json()
+        if (data.pinned) {
+          setPinnedProjects(data.pinned)
+        }
+        if (data.archived) {
+          setArchivedProjects(data.archived)
+        }
+      } catch (err) {
+        setError("Failed to load projects")
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchProjects()
+  }, [])
+
+  // Handle window data to navigate to specific location
+  useEffect(() => {
+    if (finderData?.location) {
+      const locationMap: Record<string, typeof locations.work> = {
+        work: locations.work,
+        about: locations.about,
+        resume: locations.resume,
+        trash: locations.trash,
+      }
+      const targetLocation = locationMap[finderData.location]
+      if (targetLocation) {
+        setActiveLocation(targetLocation)
+      }
+    }
+  }, [finderData])
+
+  // Show archive popup when Archive is selected (once per reload)
+  useEffect(() => {
+    if (activeLocation.type === "trash" && !hasShownArchivePopup) {
+      setShowArchivePopup(true)
+      setHasShownArchivePopup(true)
+      // Auto-dismiss after 5 seconds
+      const timer = setTimeout(() => {
+        setShowArchivePopup(false)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [activeLocation, hasShownArchivePopup])
 
   // Get all locations as an array
   const locationsList = useMemo(() => {
@@ -28,8 +89,19 @@ const Finder = () => {
 
   // Get current items to display (either root location or opened folder)
   const currentItems = useMemo(() => {
-    return currentFolder ? currentFolder.children : activeLocation.children
-  }, [currentFolder, activeLocation])
+    if (currentFolder) {
+      return currentFolder.children
+    }
+    // For work/projects location, use pinned projects
+    if (activeLocation.type === "work") {
+      return pinnedProjects
+    }
+    // For trash/archive location, use archived projects
+    if (activeLocation.type === "trash") {
+      return archivedProjects
+    }
+    return activeLocation.children
+  }, [currentFolder, activeLocation, pinnedProjects, archivedProjects])
 
   // Filter items based on search query
   const filteredItems = useMemo(() => {
@@ -48,7 +120,7 @@ const Finder = () => {
   }
 
   // Handle double-click on file/folder
-  const handleItemDoubleClick = (item: any) => {
+  const handleItemDoubleClick = async (item: any) => {
     if (item.kind === "folder") {
       // Open folder - navigate into it
       setCurrentFolder(item)
@@ -57,7 +129,22 @@ const Finder = () => {
       // Open file based on file type
       switch (item.fileType) {
         case "txt":
-          openwindow("terminal", { content: item.description })
+          console.log("Opening txt file:", item.name, item.description)
+          openwindow("txtfile", { title: item.name, content: item.description || "No description available" })
+          break
+        case "readme":
+          // Fetch README content from API - opens at max size for better reading
+          console.log("Opening README for repo:", item.repoName)
+          openwindow("txtfile", { title: item.name, content: "Loading README...", repoName: item.repoName, maxSize: true })
+          try {
+            const response = await fetch(`/api/readme?repo=${item.repoName}`)
+            const data = await response.json()
+            console.log("README fetched:", data.content?.substring(0, 100))
+            openwindow("txtfile", { title: item.name, content: data.content || "README not found.", repoName: item.repoName, maxSize: true })
+          } catch (err) {
+            console.error("Failed to fetch README:", err)
+            openwindow("txtfile", { title: item.name, content: "Failed to load README.", repoName: item.repoName, maxSize: true })
+          }
           break
         case "pdf":
           openwindow("resume", { pdfUrl: item.href || "/files/resume.pdf" })
@@ -137,9 +224,34 @@ const Finder = () => {
             </div>
           </div>
 
+          {/* Archive Popup */}
+          {showArchivePopup && activeLocation.type === "trash" && (
+            <div className="archive-popup">
+              <p>
+                These are smaller projects or WIPs I have which I might or might not finish.
+                Check out Projects to see the completed ones!
+              </p>
+              <button
+                onClick={() => setShowArchivePopup(false)}
+                className="popup-close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           {/* File Grid */}
           <div className="file-grid">
-            {filteredItems.length === 0 ? (
+            {isLoading && (activeLocation.type === "work" || activeLocation.type === "trash") ? (
+              <div className="no-results">
+                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                <p>Loading projects...</p>
+              </div>
+            ) : error && (activeLocation.type === "work" || activeLocation.type === "trash") ? (
+              <div className="no-results">
+                <p>{error}</p>
+              </div>
+            ) : filteredItems.length === 0 ? (
               <div className="no-results">
                 <p>No items found</p>
               </div>
@@ -149,6 +261,7 @@ const Finder = () => {
                   key={item.id}
                   className="file-item"
                   onDoubleClick={() => handleItemDoubleClick(item)}
+                  title={item.description || item.name}
                 >
                   <div className="file-icon">
                     <Image

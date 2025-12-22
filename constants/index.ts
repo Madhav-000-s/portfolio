@@ -64,7 +64,7 @@ const dockApps = [
     id: "trash",
     name: "Archive",
     icon: "trash.png",
-    canOpen: false,
+    canOpen: true,
   },
 ];
 
@@ -72,27 +72,19 @@ const dockApps = [
 const techStack = [
   {
     category: "Frontend",
-    items: ["React.js", "Next.js", "TypeScript"],
+    items: ["Next.js", "React", "TypeScript", "Tailwind CSS", "GSAP", "Three.js"],
+  },
+  {
+    category: "Backend & Database",
+    items: ["Node.js", "Express", "PostgreSQL", "MongoDB", "Supabase", "Appwrite"],
+  },
+  {
+    category: "AI & ML",
+    items: ["Python", "PyTorch", "scikit-learn", "LangChain"],
   },
   {
     category: "Mobile",
     items: ["React Native", "Expo"],
-  },
-  {
-    category: "Styling",
-    items: ["Tailwind CSS", "Sass", "CSS"],
-  },
-  {
-    category: "Backend",
-    items: ["Node.js", "Express", "supabase"],
-  },
-  {
-    category: "Database",
-    items: ["MongoDB", "PostgreSQL"],
-  },
-  {
-    category: "Dev Tools",
-    items: ["Git", "GitHub", "Docker"],
   },
 ];
 
@@ -114,6 +106,9 @@ const socials = [
 ];
 
 
+
+export const CONTACT_EMAIL = "madhavendranaths@gmail.com"
+export const GITHUB_USERNAME = "Madhav-000-s"
 
 export {
   navLinks,
@@ -138,7 +133,16 @@ const ABOUT_LOCATION = {
   name: "About",
   icon: "/icons/info.svg",
   kind: "folder",
-  children: [],
+  children: [
+    {
+      id: 1,
+      name: "ABOUT_ME.md",
+      icon: "/icons/file.svg",
+      kind: "file",
+      fileType: "readme",
+      repoName: "Madhav-000-s", // Profile repo (same as username)
+    },
+  ],
 }
 
 const RESUME_LOCATION = {

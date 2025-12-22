@@ -167,6 +167,10 @@ body::before {
       @apply text-sm font-bold;
     }
 
+    .maximize {
+      @apply opacity-40 cursor-not-allowed pointer-events-none;
+    }
+
     .maximize::before {
       content: "□";
       @apply text-xs;
@@ -183,7 +187,7 @@ body::before {
   }
 
   #window-header {
-    @apply flex items-center justify-between px-4 py-2 rounded-t-lg bg-[#3c3c3c] border-b border-[#252525] select-none text-sm text-[#e0e0e0] shadow-sm;
+    @apply flex items-center justify-between px-4 py-2 rounded-t-lg bg-[#3c3c3c] border-b border-[#252525] select-none text-sm text-[#e0e0e0] shadow-sm flex-shrink-0;
   }
 
   #safari {
@@ -231,33 +235,39 @@ body::before {
   }
 
   #terminal {
-    @apply w-xl absolute top-32 left-1/12 bg-[#1e1e1e] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-full h-full bg-[#1e1e1e] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden flex flex-col;
 
     h2 {
       @apply font-bold text-sm text-center w-full;
     }
 
     .techstack {
-      @apply text-sm font-roboto p-5;
+      @apply text-sm font-roboto p-5 flex-1 overflow-auto;
 
       .label {
         @apply flex items-center ms-10 mt-7;
       }
 
       .content {
-        @apply py-5 my-5 border-y border-dashed space-y-1;
+        @apply py-5 my-5 border-y border-dashed space-y-3;
 
-        li {
+        > li {
+          @apply flex items-start gap-3;
+
           .check {
-            @apply text-[#00A154] w-5;
+            @apply text-[#00A154] w-5 flex-shrink-0 mt-0.5;
           }
 
           h3 {
-            @apply font-semibold text-[#00A154] w-32 ms-5;
+            @apply font-semibold text-[#00A154] w-28 flex-shrink-0;
           }
 
           ul {
-            @apply flex items-center gap-3;
+            @apply flex flex-wrap items-center gap-x-2 gap-y-1 flex-1;
+
+            li {
+              @apply text-gray-300;
+            }
           }
         }
       }
@@ -277,29 +287,64 @@ body::before {
   }
 
   #contact {
-    @apply max-w-2xl absolute top-60 left-5/12 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-full h-full bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden flex flex-col;
 
     h2 {
       @apply font-bold text-sm text-center w-full text-[#e0e0e0];
     }
 
-    h3 {
-      @apply text-xl font-semibold text-[#e0e0e0];
+    .contact-content {
+      @apply p-6 space-y-6 flex-1 overflow-auto;
     }
 
-    ul {
-      @apply flex items-center gap-3;
+    .contact-socials {
+      h3 {
+        @apply text-lg font-semibold text-[#e0e0e0] mb-4;
+      }
 
-      li {
-        @apply rounded-lg p-3 w-60 hover:-translate-y-0.5 hover:scale-105 origin-center transition-all duration-300;
+      .social-links {
+        @apply flex flex-wrap gap-3;
+      }
 
-        a {
-          @apply space-y-5;
+      .social-link {
+        @apply flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition-all hover:scale-105 hover:shadow-lg;
+
+        img {
+          @apply w-5 h-5 invert;
+        }
+      }
+    }
+
+    .contact-form-section {
+      @apply border-t border-[#3d3d3d] pt-6;
+
+      h3 {
+        @apply text-lg font-semibold text-[#e0e0e0] mb-4;
+      }
+    }
+
+    .contact-form {
+      @apply space-y-4;
+
+      .form-group {
+        @apply space-y-1;
+
+        label {
+          @apply text-sm text-[#a0a0a0];
         }
 
-        p {
-          @apply font-semibold text-sm text-white;
+        input,
+        textarea {
+          @apply w-full px-3 py-2 bg-[#1e1e1e] border border-[#4d4d4d] rounded-lg text-[#e0e0e0] placeholder:text-[#666] focus:border-[#0078d4] focus:outline-none transition-colors;
         }
+
+        textarea {
+          @apply resize-none;
+        }
+      }
+
+      .submit-btn {
+        @apply flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#0078d4] hover:bg-[#1084d8] text-white rounded-lg font-medium transition-colors;
       }
     }
   }
@@ -365,7 +410,7 @@ body::before {
   }
 
   #resume {
-    @apply w-3xl absolute top-16 left-7/12 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-full h-full bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden flex flex-col;
 
     #window-header {
       h2 {
@@ -382,15 +427,15 @@ body::before {
     }
 
     .pdf-container {
-      @apply flex items-center justify-center p-4 bg-[#323232] max-h-[70vh] overflow-auto;
+      @apply flex items-center justify-center p-4 bg-[#323232] flex-1 overflow-auto;
     }
   }
 
   #finder {
-    @apply w-4xl absolute left-40 top-20 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl overflow-hidden rounded-xl;
+    @apply w-full h-full bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden flex flex-col;
 
     .finder-content {
-      @apply flex h-[70vh];
+      @apply flex flex-1 min-h-0 overflow-hidden;
     }
 
     .sidebar {
@@ -441,8 +486,20 @@ body::before {
       }
     }
 
+    .archive-popup {
+      @apply mx-4 mb-4 p-4 bg-[#3c3c3c] border border-[#4d4d4d] rounded-lg flex items-start gap-3 animate-pulse;
+
+      p {
+        @apply text-sm text-[#e0e0e0] flex-1;
+      }
+
+      .popup-close {
+        @apply p-1 hover:bg-[#4d4d4d] rounded transition-colors text-[#a0a0a0] hover:text-[#e0e0e0];
+      }
+    }
+
     .file-grid {
-      @apply flex-1 p-6 overflow-auto grid grid-cols-4 gap-6 content-start;
+      @apply flex-1 p-6 grid grid-cols-4 gap-6 content-start overflow-auto;
 
       .file-item {
         @apply flex flex-col items-center gap-2 cursor-pointer hover:bg-[#3d3d3d] p-3 rounded-lg transition-colors;
@@ -461,7 +518,7 @@ body::before {
       }
 
       .no-results {
-        @apply col-span-4 flex items-center justify-center h-full;
+        @apply col-span-4 flex flex-col items-center justify-center h-full gap-3;
 
         p {
           @apply text-[#a0a0a0] text-sm;
@@ -471,10 +528,102 @@ body::before {
   }
 
   #txtfile {
-    @apply w-md absolute top-36 right-32 bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden;
+    @apply w-full h-full bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden flex flex-col;
 
     h2 {
       @apply font-bold text-sm text-center w-full text-[#e0e0e0];
+    }
+
+    .txtfile-content {
+      @apply p-4 bg-[#1e1e1e] flex-1 overflow-auto;
+
+      pre {
+        @apply text-sm text-[#e0e0e0] font-roboto whitespace-pre-wrap break-words;
+      }
+
+      .markdown-body {
+        @apply text-[#e0e0e0] text-sm leading-relaxed;
+
+        h1 {
+          @apply text-2xl font-bold text-[#e0e0e0] border-b border-[#3d3d3d] pb-2 mb-4 mt-6;
+        }
+
+        h2 {
+          @apply text-xl font-bold text-[#e0e0e0] border-b border-[#3d3d3d] pb-2 mb-3 mt-5;
+        }
+
+        h3 {
+          @apply text-lg font-semibold text-[#e0e0e0] mb-2 mt-4;
+        }
+
+        h4, h5, h6 {
+          @apply font-semibold text-[#e0e0e0] mb-2 mt-3;
+        }
+
+        p {
+          @apply mb-4 leading-relaxed;
+        }
+
+        a {
+          @apply text-[#58a6ff] hover:underline;
+        }
+
+        strong {
+          @apply font-bold text-[#e0e0e0];
+        }
+
+        em {
+          @apply italic;
+        }
+
+        code {
+          @apply bg-[#2d2d2d] text-[#e06c75] px-1.5 py-0.5 rounded text-xs font-roboto;
+        }
+
+        pre {
+          @apply bg-[#2d2d2d] p-4 rounded-lg overflow-x-auto mb-4 border border-[#3d3d3d];
+
+          code {
+            @apply bg-transparent text-[#abb2bf] p-0;
+          }
+        }
+
+        ul {
+          @apply list-disc list-inside mb-4 space-y-1;
+        }
+
+        ol {
+          @apply list-decimal list-inside mb-4 space-y-1;
+        }
+
+        li {
+          @apply text-[#e0e0e0];
+        }
+
+        blockquote {
+          @apply border-l-4 border-[#3d3d3d] pl-4 italic text-[#a0a0a0] my-4;
+        }
+
+        table {
+          @apply w-full border-collapse mb-4;
+        }
+
+        th, td {
+          @apply border border-[#3d3d3d] px-3 py-2 text-left;
+        }
+
+        th {
+          @apply bg-[#2d2d2d] font-semibold;
+        }
+
+        hr {
+          @apply border-[#3d3d3d] my-6;
+        }
+
+        img {
+          @apply max-w-full h-auto rounded my-4;
+        }
+      }
     }
   }
 
@@ -513,4 +662,72 @@ body::before {
       }
     }
   }
+
+  /* Custom resize handles */
+  .resize-handle {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 50;
+  }
+
+  .resize-handle:hover,
+  .resize-handle.active {
+    opacity: 1;
+  }
+
+  /* Edge handles */
+  .resize-handle-n { top: 0; left: 10px; right: 10px; height: 5px; cursor: n-resize; }
+  .resize-handle-s { bottom: 0; left: 10px; right: 10px; height: 5px; cursor: s-resize; }
+  .resize-handle-e { right: 0; top: 10px; bottom: 10px; width: 5px; cursor: e-resize; }
+  .resize-handle-w { left: 0; top: 10px; bottom: 10px; width: 5px; cursor: w-resize; }
+
+  /* Corner handles */
+  .resize-handle-nw { top: 0; left: 0; width: 10px; height: 10px; cursor: nw-resize; }
+  .resize-handle-ne { top: 0; right: 0; width: 10px; height: 10px; cursor: ne-resize; }
+  .resize-handle-sw { bottom: 0; left: 0; width: 10px; height: 10px; cursor: sw-resize; }
+  .resize-handle-se { bottom: 0; right: 0; width: 10px; height: 10px; cursor: nwse-resize; }
+
+  /* Hover visual indicator */
+  .resize-handle::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 120, 212, 0.6);
+    border-radius: 2px;
+  }
+}
+
+/* Dark themed scrollbar - WebKit */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5a5a5a;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: #1a1a1a;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4a4a4a #1a1a1a;
 }

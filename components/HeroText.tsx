@@ -6,16 +6,36 @@ import { Center } from "@react-three/drei"
 import gsap from "gsap"
 import TuxModel from "./TuxModel"
 import * as THREE from "three"
+import useWindowStore from "@/store/useWindowStore"
 
-export default function HeroText() {
+interface HeroTextProps {
+  startAnimation?: boolean
+}
+
+export default function HeroText({ startAnimation = true }: HeroTextProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const modelRef = useRef<THREE.Group>(null)
   const isNearRef = useRef(false)
-  const floatAnimationRef = useRef<gsap.core.Tween | null>(null)
-  const isBouncingRef = useRef(false)
+  const idleAnimationRef = useRef<gsap.core.Timeline | null>(null)
+  const idleTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isAnimatingRef = useRef(false)
   const initializedRef = useRef(false)
+  const anyWindowOpenRef = useRef(false)
+  const hoverCountRef = useRef(0)
+
+  // Track window state for disabling animations when windows are open
+  const anyWindowOpen = useWindowStore((state) =>
+    Object.values(state.windows).some(win => win.isOpen)
+  )
 
   useEffect(() => {
+    anyWindowOpenRef.current = anyWindowOpen
+  }, [anyWindowOpen])
+
+  useEffect(() => {
+    // Don't start animations until splash is complete
+    if (!startAnimation) return
+
     let mouseMoveHandler: ((e: MouseEvent) => void) | null = null
 
     // Poll until model is loaded
@@ -41,7 +61,7 @@ export default function HeroText() {
           duration: 1.2,
           ease: "power3.out",
           delay: 0.3,
-          onComplete: startFloatingAnimation,
+          onComplete: startIdleCycle,
         }
       )
 
@@ -56,53 +76,159 @@ export default function HeroText() {
         }
       )
 
-      // Idle floating animation (gentle up and down bobbing)
-      function startFloatingAnimation() {
-        if (!model || isBouncingRef.current) return
+      // ==========================================
+      // IDLE ANIMATION SYSTEM (3 animations, 5-sec cycle)
+      // ==========================================
 
-        floatAnimationRef.current = gsap.to(model.position, {
-          y: 0.3,
-          duration: 2,
-          ease: "sine.inOut",
-          repeat: -1,
-          yoyo: true,
+      // Idle Animation 1: Look Around
+      function playIdleAnimation1() {
+        if (!model) return
+        return gsap.timeline()
+          .to(model.rotation, { y: 0.4, duration: 1, ease: "sine.inOut" })
+          .to({}, { duration: 0.3 })
+          .to(model.rotation, { y: -0.4, duration: 1.2, ease: "sine.inOut" })
+          .to({}, { duration: 0.3 })
+          .to(model.rotation, { y: 0, duration: 0.8, ease: "sine.inOut" })
+      }
+
+      // Idle Animation 2: Waddle
+      function playIdleAnimation2() {
+        if (!model) return
+        return gsap.timeline()
+          .to(model.rotation, { z: 0.1, duration: 0.3, ease: "sine.inOut" })
+          .to(model.rotation, { z: -0.1, duration: 0.3, ease: "sine.inOut" })
+          .to(model.rotation, { z: 0.08, duration: 0.25, ease: "sine.inOut" })
+          .to(model.rotation, { z: -0.08, duration: 0.25, ease: "sine.inOut" })
+          .to(model.rotation, { z: 0.05, duration: 0.2, ease: "sine.inOut" })
+          .to(model.rotation, { z: -0.05, duration: 0.2, ease: "sine.inOut" })
+          .to(model.rotation, { z: 0, duration: 0.2, ease: "sine.out" })
+      }
+
+      // Idle Animation 3: Curious Tilt
+      function playIdleAnimation3() {
+        if (!model) return
+        return gsap.timeline()
+          .to(model.rotation, { z: 0.2, x: 0.1, duration: 0.5, ease: "power2.out" })
+          .to({}, { duration: 0.8 })
+          .to(model.rotation, { z: 0, x: 0, duration: 0.4, ease: "power2.inOut" })
+          .to({}, { duration: 0.2 })
+          .to(model.rotation, { z: -0.15, x: 0.05, duration: 0.4, ease: "power2.out" })
+          .to({}, { duration: 0.5 })
+          .to(model.rotation, { z: 0, x: 0, duration: 0.3, ease: "power2.in" })
+      }
+
+      // Play random idle animation
+      function playRandomIdleAnimation() {
+        if (!model || isAnimatingRef.current) return
+
+        isAnimatingRef.current = true
+        const animations = [playIdleAnimation1, playIdleAnimation2, playIdleAnimation3]
+        const randomIndex = Math.floor(Math.random() * animations.length)
+
+        idleAnimationRef.current = animations[randomIndex]()!
+        idleAnimationRef.current.eventCallback("onComplete", () => {
+          isAnimatingRef.current = false
+          // Schedule next idle cycle
+          scheduleNextIdleAnimation()
         })
       }
 
-      function stopFloatingAnimation() {
-        if (floatAnimationRef.current) {
-          floatAnimationRef.current.kill()
-          floatAnimationRef.current = null
+      // Schedule the next idle animation after 5 seconds
+      function scheduleNextIdleAnimation() {
+        if (idleTimeoutRef.current) {
+          clearTimeout(idleTimeoutRef.current)
+        }
+        idleTimeoutRef.current = setTimeout(() => {
+          if (!isNearRef.current && !isAnimatingRef.current) {
+            playRandomIdleAnimation()
+          }
+        }, 2000)
+      }
+
+      // Start the idle cycle
+      function startIdleCycle() {
+        if (!model || isAnimatingRef.current) return
+        scheduleNextIdleAnimation()
+      }
+
+      // Stop all idle animations
+      function stopIdleCycle() {
+        if (idleTimeoutRef.current) {
+          clearTimeout(idleTimeoutRef.current)
+          idleTimeoutRef.current = null
+        }
+        if (idleAnimationRef.current) {
+          idleAnimationRef.current.kill()
+          idleAnimationRef.current = null
+        }
+        // Reset model position
+        if (model) {
+          gsap.to(model.rotation, { x: 0, y: 0, z: 0, duration: 0.2 })
         }
       }
 
-      // Jump/bounce animation on hover
-      function triggerBounce() {
-        if (!model || isBouncingRef.current) return
+      // ==========================================
+      // HOVER ANIMATION SYSTEM (2 animations, alternating)
+      // ==========================================
 
-        isBouncingRef.current = true
-        stopFloatingAnimation()
-
-        // Quick jump up and bounce down
-        gsap.timeline()
-          .to(model.position, {
-            y: 1.2,
-            duration: 0.25,
-            ease: "power2.out",
-          })
-          .to(model.position, {
-            y: 0,
-            duration: 0.5,
-            ease: "bounce.out",
-            onComplete: () => {
-              isBouncingRef.current = false
-              // Resume floating if mouse is no longer near
-              if (!isNearRef.current) {
-                startFloatingAnimation()
-              }
-            },
-          })
+      // Hover Animation 1: Jump Spin
+      function triggerHoverAnimation1() {
+        if (!model) return
+        return gsap.timeline()
+          // Jump up
+          .to(model.position, { y: 0.6, duration: 0.4, ease: "power2.out" })
+          // Spin 360° during jump (slower so you can see it)
+          .to(model.rotation, { y: Math.PI * 2, duration: 1.0, ease: "power1.inOut" }, "<")
+          // Land with bounce
+          .to(model.position, { y: 0, duration: 0.6, ease: "bounce.out" }, "-=0.4")
       }
+
+      // Hover Animation 2: Excited Hop with Head Shake
+      function triggerHoverAnimation2() {
+        if (!model) return
+        return gsap.timeline()
+          // Small hop
+          .to(model.position, { y: 0.3, duration: 0.25, ease: "power2.out" })
+          // Head shake during hop (slower so you can see it)
+          .to(model.rotation, { y: 0.4, duration: 0.15, ease: "power1.inOut" }, "<")
+          .to(model.rotation, { y: -0.4, duration: 0.15, ease: "power1.inOut" })
+          .to(model.rotation, { y: 0.25, duration: 0.12, ease: "power1.inOut" })
+          .to(model.rotation, { y: -0.25, duration: 0.12, ease: "power1.inOut" })
+          .to(model.rotation, { y: 0, duration: 0.1, ease: "power1.out" })
+          // Land
+          .to(model.position, { y: 0, duration: 0.5, ease: "bounce.out" }, "-=0.2")
+          // Excited lean forward
+          .to(model.rotation, { x: 0.2, duration: 0.25, ease: "power2.out" }, "-=0.2")
+          .to(model.rotation, { x: 0, duration: 0.35, ease: "power2.inOut" })
+      }
+
+      // Trigger alternating hover animation
+      function triggerHoverAnimation() {
+        if (!model || isAnimatingRef.current || anyWindowOpenRef.current) return
+
+        isAnimatingRef.current = true
+        stopIdleCycle()
+
+        // Alternate between animations based on hover count
+        const isEvenHover = hoverCountRef.current % 2 === 0
+        hoverCountRef.current++
+
+        const timeline = isEvenHover ? triggerHoverAnimation1() : triggerHoverAnimation2()
+
+        timeline!.eventCallback("onComplete", () => {
+          // Reset rotation for clean state
+          model.rotation.y = 0
+          isAnimatingRef.current = false
+          // Resume idle cycle if mouse is no longer near
+          if (!isNearRef.current) {
+            startIdleCycle()
+          }
+        })
+      }
+
+      // ==========================================
+      // MOUSE INTERACTION
+      // ==========================================
 
       // Mouse follow effect with rotation
       const rotationXTo = gsap.quickTo(model.rotation, "x", {
@@ -126,29 +252,33 @@ export default function HeroText() {
         const deltaY = e.clientY - centerY
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
 
-        // Magnetic effect when within 300px
-        const maxDistance = 300
+        // Magnetic effect when within 200px
+        const maxDistance = 200
         if (distance < maxDistance) {
           if (!isNearRef.current) {
             isNearRef.current = true
-            stopFloatingAnimation()
-            triggerBounce() // Bounce when mouse enters zone
+            stopIdleCycle()
+            triggerHoverAnimation() // Play hover animation when mouse enters zone
           }
-          const strength = 1 - distance / maxDistance
-          // Convert mouse position to rotation
-          const rotateY = (deltaX / maxDistance) * strength * 0.5
-          const rotateX = -(deltaY / maxDistance) * strength * 0.5
 
-          rotationYTo(rotateY)
-          rotationXTo(rotateX)
+          // Only apply magnetic effect when NOT animating
+          if (!isAnimatingRef.current) {
+            const strength = 1 - distance / maxDistance
+            // Convert mouse position to rotation
+            const rotateY = (deltaX / maxDistance) * strength * 0.5
+            const rotateX = -(deltaY / maxDistance) * strength * 0.5
+
+            rotationYTo(rotateY)
+            rotationXTo(rotateX)
+          }
         } else {
           if (isNearRef.current) {
             isNearRef.current = false
             rotationYTo(0)
             rotationXTo(0)
-            // Restart floating animation after mouse leaves
-            if (!isBouncingRef.current) {
-              setTimeout(startFloatingAnimation, 600)
+            // Restart idle cycle after mouse leaves
+            if (!isAnimatingRef.current) {
+              setTimeout(startIdleCycle, 600)
             }
           }
         }
@@ -162,31 +292,34 @@ export default function HeroText() {
       if (mouseMoveHandler) {
         window.removeEventListener("mousemove", mouseMoveHandler)
       }
-      if (floatAnimationRef.current) {
-        floatAnimationRef.current.kill()
+      if (idleAnimationRef.current) {
+        idleAnimationRef.current.kill()
+      }
+      if (idleTimeoutRef.current) {
+        clearTimeout(idleTimeoutRef.current)
       }
     }
-  }, [])
+  }, [startAnimation])
 
   return (
     <div
       ref={containerRef}
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+      className="absolute bottom-10 left-5"
     >
-      <div className="text-center select-none">
+      <div className="select-none">
         <Canvas
-          style={{ width: "550px", height: "100vh" }}
-          camera={{ position: [0, 0, 8], fov: 50 }}
+          style={{ width: "400px", height: "450px" }}
+          camera={{ position: [0, 0, 12], fov: 50 }}
           gl={{ alpha: true, antialias: true }}
         >
           <Suspense fallback={null}>
             <ambientLight intensity={2} />
             <directionalLight position={[5, 5, 5]} intensity={3} />
             <directionalLight position={[-5, -5, -5]} intensity={2} />
-            <pointLight position={[0, 5, 0]} intensity={2} />
+            <pointLight position={[0, 7, 0]} intensity={2} />
             {/* Center wrapper for automatic model centering */}
             <Center>
-              <TuxModel ref={modelRef} scale={0.05} />
+              <TuxModel ref={modelRef} scale={0.06} />
             </Center>
           </Suspense>
         </Canvas>
