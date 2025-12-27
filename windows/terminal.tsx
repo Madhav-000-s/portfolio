@@ -5,7 +5,7 @@ import { techStack } from "@/constants"
 import useWindowStore from "@/store/useWindowStore"
 
 const Terminal = () => {
-  const { closewindow } = useWindowStore()
+  const { closewindow, minimizewindow } = useWindowStore()
 
   return (
     <div id="terminal">
@@ -13,7 +13,7 @@ const Terminal = () => {
       <div id="window-header">
         <h2>Skills</h2>
         <div id="window-controls">
-          <div className="minimize" />
+          <div className="minimize" onClick={() => minimizewindow("terminal")} />
           <div className="maximize" />
           <div className="close" onClick={() => closewindow("terminal")} />
         </div>

@@ -10,6 +10,10 @@ import FinderWindow from "@/components/windows/FinderWindow"
 import ResumeWindow from "@/components/windows/ResumeWindow"
 import ContactWindow from "@/components/windows/ContactWindow"
 import TextFileWindow from "@/components/windows/TextFileWindow"
+import SnakeWindow from "@/components/windows/SnakeWindow"
+import Game2048Window from "@/components/windows/Game2048Window"
+import MemoryWindow from "@/components/windows/MemoryWindow"
+import TicTacToeWindow from "@/components/windows/TicTacToeWindow"
 import SplashScreen from "@/components/SplashScreen"
 import LoginScreen from "@/components/LoginScreen"
 import WelcomeTransition from "@/components/WelcomeTransition"
@@ -75,6 +79,10 @@ export default function Home() {
         <ResumeWindow />
         <ContactWindow />
         <TextFileWindow />
+        <SnakeWindow />
+        <Game2048Window />
+        <MemoryWindow />
+        <TicTacToeWindow />
       </div>
     </main>
   )

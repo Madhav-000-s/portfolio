@@ -43,12 +43,6 @@ const dockApps = [
     canOpen: true,
   },
   {
-    id: "games",
-    name: "Games",
-    icon: "games.png",
-    canOpen: false,
-  },
-  {
     id: "contact",
     name: "Contact",
     icon: "contact.png",
@@ -171,12 +165,54 @@ const TRASH_LOCATION = {
   children: [],
 }
 
+const GAMES_LOCATION = {
+  id: 5,
+  type: "games",
+  name: "Games",
+  icon: "/icons/games.svg",
+  kind: "folder",
+  children: [
+    {
+      id: 1,
+      name: "Snake",
+      icon: "/icons/snake.svg",
+      kind: "file",
+      fileType: "game",
+      gameType: "snake",
+    },
+    {
+      id: 2,
+      name: "2048",
+      icon: "/icons/puzzle.svg",
+      kind: "file",
+      fileType: "game",
+      gameType: "game2048",
+    },
+    {
+      id: 3,
+      name: "Memory",
+      icon: "/icons/cards.svg",
+      kind: "file",
+      fileType: "game",
+      gameType: "memory",
+    },
+    {
+      id: 4,
+      name: "Tic-Tac-Toe",
+      icon: "/icons/tictactoe.svg",
+      kind: "file",
+      fileType: "game",
+      gameType: "tictactoe",
+    },
+  ],
+}
 
 export const locations = {
   work: WORK_LOCATION,
   about: ABOUT_LOCATION,
   resume: RESUME_LOCATION,
   trash: TRASH_LOCATION,
+  games: GAMES_LOCATION,
 };
 
 const INITIAL_Z_INDEX = 1000;
@@ -188,6 +224,10 @@ const WINDOW_CONFIG = {
   terminal: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
   txtfile: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
   imgfile: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
+  snake: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
+  game2048: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
+  memory: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
+  tictactoe: { isOpen: false, zIndex: INITIAL_Z_INDEX, data: null },
 };
 
 export { INITIAL_Z_INDEX, WINDOW_CONFIG };

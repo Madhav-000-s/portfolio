@@ -7,7 +7,7 @@ import { socials, CONTACT_EMAIL } from "@/constants"
 import useWindowStore from "@/store/useWindowStore"
 
 const Contact = () => {
-  const { closewindow } = useWindowStore()
+  const { closewindow, minimizewindow } = useWindowStore()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -38,7 +38,7 @@ const Contact = () => {
       <div id="window-header">
         <h2>Contact</h2>
         <div id="window-controls">
-          <div className="minimize" />
+          <div className="minimize" onClick={() => minimizewindow("contact")} />
           <div className="maximize" />
           <div className="close" onClick={() => closewindow("contact")} />
         </div>

@@ -17,7 +17,7 @@ type Location = {
 }
 
 const Finder = () => {
-  const { closewindow, openwindow } = useWindowStore()
+  const { closewindow, openwindow, minimizewindow } = useWindowStore()
   const finderData = useWindowStore((state) => state.windows.finder?.data)
   const [activeLocation, setActiveLocation] = useState<Location>(locations.work)
   const [searchQuery, setSearchQuery] = useState<string>("")
@@ -56,11 +56,12 @@ const Finder = () => {
   // Handle window data to navigate to specific location
   useEffect(() => {
     if (finderData?.location) {
-      const locationMap: Record<string, typeof locations.work> = {
+      const locationMap: Record<string, Location> = {
         work: locations.work,
         about: locations.about,
         resume: locations.resume,
         trash: locations.trash,
+        games: locations.games,
       }
       const targetLocation = locationMap[finderData.location]
       if (targetLocation) {
@@ -84,7 +85,7 @@ const Finder = () => {
 
   // Get all locations as an array
   const locationsList = useMemo(() => {
-    return [locations.work, locations.about, locations.resume, locations.trash]
+    return [locations.work, locations.about, locations.resume, locations.trash, locations.games]
   }, [])
 
   // Get current items to display (either root location or opened folder)
@@ -157,6 +158,12 @@ const Finder = () => {
             window.open(item.href, "_blank")
           }
           break
+        case "game":
+          // Open game in its own window
+          if (item.gameType) {
+            openwindow(item.gameType, {})
+          }
+          break
         default:
           console.log("Unknown file type:", item.fileType)
       }
@@ -175,7 +182,7 @@ const Finder = () => {
       <div id="window-header">
         <h2>Portfolio</h2>
         <div id="window-controls">
-          <div className="minimize" />
+          <div className="minimize" onClick={() => minimizewindow("finder")} />
           <div className="maximize" />
           <div className="close" onClick={() => closewindow("finder")} />
         </div>

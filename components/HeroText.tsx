@@ -22,6 +22,8 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
   const initializedRef = useRef(false)
   const anyWindowOpenRef = useRef(false)
   const hoverCountRef = useRef(0)
+  const triggerHoverRef = useRef<(() => void) | null>(null)
+  const prevWindowOpenRef = useRef(false)
 
   // Track window state for disabling animations when windows are open
   const anyWindowOpen = useWindowStore((state) =>
@@ -29,6 +31,18 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
   )
 
   useEffect(() => {
+    // Detect when windows close (true -> false) while mouse is near
+    const wasOpen = prevWindowOpenRef.current
+    const isNowClosed = !anyWindowOpen
+
+    if (wasOpen && isNowClosed && isNearRef.current && !isAnimatingRef.current) {
+      // Windows just closed and mouse is near - trigger hover animation
+      if (triggerHoverRef.current) {
+        triggerHoverRef.current()
+      }
+    }
+
+    prevWindowOpenRef.current = anyWindowOpen
     anyWindowOpenRef.current = anyWindowOpen
   }, [anyWindowOpen])
 
@@ -145,6 +159,7 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
         }, 2000)
       }
 
+      
       // Start the idle cycle
       function startIdleCycle() {
         if (!model || isAnimatingRef.current) return
@@ -225,6 +240,9 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
           }
         })
       }
+
+      // Store in ref so it can be called when windows close
+      triggerHoverRef.current = triggerHoverAnimation
 
       // ==========================================
       // MOUSE INTERACTION

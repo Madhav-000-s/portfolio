@@ -452,7 +452,7 @@ body::before {
           @apply flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-colors text-[#e0e0e0] hover:bg-[#3d3d3d];
 
           &.active {
-            @apply bg-[#0078d4] text-white;
+            @apply bg-[#3d3d3d] text-white;
           }
 
           img {
@@ -643,6 +643,23 @@ body::before {
         @apply w-full h-fit object-contain object-center;
       }
     }
+  }
+
+  /* Game Windows */
+  #snake-window {
+    @apply w-full h-full bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden flex flex-col;
+  }
+
+  #game2048-window {
+    @apply w-full h-full bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden flex flex-col;
+  }
+
+  #memory-window {
+    @apply w-full h-full bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden flex flex-col;
+  }
+
+  #tictactoe-window {
+    @apply w-full h-full bg-[#2b2b2b] shadow-2xl drop-shadow-2xl rounded-xl overflow-hidden flex flex-col;
   }
 
   #home {

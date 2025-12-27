@@ -13,6 +13,7 @@ interface WindowStore {
   nextZIndex: number
   openwindow: (windowKey: string, data?: any) => void
   closewindow: (windowKey: string) => void
+  minimizewindow: (windowKey: string) => void
   focuswindow: (windowKey: string) => void
 }
 
@@ -40,6 +41,13 @@ const useWindowStore = create<WindowStore>()(
         if (win) {
           win.isOpen = false
           win.data = null
+        }
+      }),
+    minimizewindow: (windowKey: string) =>
+      set((state) => {
+        const win = state.windows[windowKey]
+        if (win) {
+          win.isOpen = false
         }
       }),
     focuswindow: (windowKey: string) =>

@@ -4,37 +4,30 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import gsap from "gsap"
 import { Draggable } from "gsap/Draggable"
 import useWindowStore from "@/store/useWindowStore"
-import Finder from "@/windows/finder"
+import TicTacToe from "@/windows/tictactoe"
 
 // Register GSAP plugin
 if (typeof window !== "undefined") {
   gsap.registerPlugin(Draggable)
 }
 
-// Size constraints for finder window
-const MIN_WIDTH = 650
-const MAX_WIDTH = 1200
-const MIN_HEIGHT = 400
-const DEFAULT_MAX_HEIGHT = 800
+// Size constraints for tictactoe window
+const MIN_WIDTH = 350
+const MAX_WIDTH = 500
+const MIN_HEIGHT = 480
+const MAX_HEIGHT = 650
 
-export default function FinderWindow() {
-  const finderState = useWindowStore((state) => state.windows.finder)
+export default function TicTacToeWindow() {
+  const tictactoeState = useWindowStore((state) => state.windows.tictactoe)
   const focuswindow = useWindowStore((state) => state.focuswindow)
   const windowRef = useRef<HTMLDivElement>(null)
 
   // Resize state
-  const [dimensions, setDimensions] = useState({ width: 800, height: 500 })
-  const [maxHeight, setMaxHeight] = useState(DEFAULT_MAX_HEIGHT)
-
-  // Calculate max height on client side
-  useEffect(() => {
-    setMaxHeight(window.innerHeight * 0.85)
-  }, [])
+  const [dimensions, setDimensions] = useState({ width: 380, height: 520 })
   const isResizing = useRef(false)
   const resizeDirection = useRef("")
   const startPos = useRef({ x: 0, y: 0, width: 0, height: 0, left: 0, top: 0 })
 
-  // Handle resize move
   const handleResizeMove = useCallback((e: MouseEvent) => {
     if (!isResizing.current || !windowRef.current) return
 
@@ -47,7 +40,6 @@ export default function FinderWindow() {
     let newLeft = startPos.current.left
     let newTop = startPos.current.top
 
-    // Calculate new dimensions based on direction
     if (dir.includes("e")) {
       newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startPos.current.width + deltaX))
     }
@@ -60,27 +52,24 @@ export default function FinderWindow() {
       newLeft = startPos.current.left + widthDelta
     }
     if (dir.includes("s")) {
-      newHeight = Math.min(maxHeight, Math.max(MIN_HEIGHT, startPos.current.height + deltaY))
+      newHeight = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, startPos.current.height + deltaY))
     }
     if (dir.includes("n")) {
       const heightDelta = Math.min(
         startPos.current.height - MIN_HEIGHT,
-        Math.max(startPos.current.height - maxHeight, deltaY)
+        Math.max(startPos.current.height - MAX_HEIGHT, deltaY)
       )
       newHeight = startPos.current.height - heightDelta
       newTop = startPos.current.top + heightDelta
     }
 
-    // Apply new dimensions
     setDimensions({ width: newWidth, height: newHeight })
 
-    // Update position for n/w resizing using GSAP
     if (dir.includes("n") || dir.includes("w")) {
       gsap.set(windowRef.current, { x: newLeft, y: newTop })
     }
-  }, [maxHeight])
+  }, [])
 
-  // Handle resize end
   const handleResizeEnd = useCallback(() => {
     isResizing.current = false
     resizeDirection.current = ""
@@ -90,7 +79,6 @@ export default function FinderWindow() {
     document.body.style.userSelect = ""
   }, [handleResizeMove])
 
-  // Handle resize start
   const handleResizeStart = useCallback((direction: string) => (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -100,7 +88,6 @@ export default function FinderWindow() {
     isResizing.current = true
     resizeDirection.current = direction
 
-    const rect = windowRef.current.getBoundingClientRect()
     const transform = gsap.getProperty(windowRef.current, "x") as number
     const transformY = gsap.getProperty(windowRef.current, "y") as number
 
@@ -118,45 +105,43 @@ export default function FinderWindow() {
     document.body.style.cursor = getComputedStyle(e.currentTarget).cursor
     document.body.style.userSelect = "none"
 
-    focuswindow("finder")
+    focuswindow("tictactoe")
   }, [dimensions, focuswindow, handleResizeMove, handleResizeEnd])
 
   useEffect(() => {
-    if (!windowRef.current || !finderState?.isOpen) return
+    if (!windowRef.current || !tictactoeState?.isOpen) return
 
-    // Initialize draggable
     const draggableInstance = Draggable.create(windowRef.current, {
       type: "x,y",
       bounds: "main",
       trigger: "#window-header",
       cursor: "move",
       onPress: () => {
-        focuswindow("finder")
+        focuswindow("tictactoe")
       },
     })
 
     return () => {
       draggableInstance[0]?.kill()
     }
-  }, [finderState?.isOpen, focuswindow])
+  }, [tictactoeState?.isOpen, focuswindow])
 
-  if (!finderState?.isOpen) return null
+  if (!tictactoeState?.isOpen) return null
 
   return (
     <div
       ref={windowRef}
-      id="finder-window"
+      id="tictactoe-game-window"
       style={{
-        zIndex: finderState.zIndex,
+        zIndex: tictactoeState.zIndex,
         width: dimensions.width,
         height: dimensions.height,
-        top: "80px",
-        left: "25%",
+        top: "130px",
+        left: "35%",
       }}
       className="absolute"
-      onClick={() => focuswindow("finder")}
+      onClick={() => focuswindow("tictactoe")}
     >
-      {/* Resize handles */}
       <div className="resize-handle resize-handle-n" onMouseDown={handleResizeStart("n")} />
       <div className="resize-handle resize-handle-s" onMouseDown={handleResizeStart("s")} />
       <div className="resize-handle resize-handle-e" onMouseDown={handleResizeStart("e")} />
@@ -166,7 +151,7 @@ export default function FinderWindow() {
       <div className="resize-handle resize-handle-sw" onMouseDown={handleResizeStart("sw")} />
       <div className="resize-handle resize-handle-se" onMouseDown={handleResizeStart("se")} />
 
-      <Finder />
+      <TicTacToe />
     </div>
   )
 }

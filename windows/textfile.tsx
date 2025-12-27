@@ -7,7 +7,7 @@ import useWindowStore from "@/store/useWindowStore"
 import { GITHUB_USERNAME } from "@/constants"
 
 const TextFile = () => {
-  const { closewindow } = useWindowStore()
+  const { closewindow, minimizewindow } = useWindowStore()
   const txtfileData = useWindowStore((state) => state.windows.txtfile?.data)
 
   const title = txtfileData?.title || "README.md"
@@ -34,7 +34,7 @@ const TextFile = () => {
       <div id="window-header">
         <h2>{title}</h2>
         <div id="window-controls">
-          <div className="minimize" />
+          <div className="minimize" onClick={() => minimizewindow("txtfile")} />
           <div className="maximize" />
           <div className="close" onClick={() => closewindow("txtfile")} />
         </div>

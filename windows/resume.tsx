@@ -11,7 +11,7 @@ if (typeof window !== "undefined") {
 }
 
 const Resume = () => {
-  const { closewindow } = useWindowStore()
+  const { closewindow, minimizewindow } = useWindowStore()
   const [numPages, setNumPages] = useState<number>(0)
   const [pageNumber, setPageNumber] = useState<number>(1)
   const [scale, setScale] = useState<number>(1.0)
@@ -43,7 +43,7 @@ const Resume = () => {
       <div id="window-header">
         <h2>Resume</h2>
         <div id="window-controls">
-          <div className="minimize" />
+          <div className="minimize" onClick={() => minimizewindow("resume")} />
           <div className="maximize" />
           <div className="close" onClick={() => closewindow("resume")} />
         </div>
