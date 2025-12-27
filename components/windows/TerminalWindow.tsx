@@ -12,10 +12,10 @@ if (typeof window !== "undefined") {
 }
 
 // Size constraints for terminal window
-const MIN_WIDTH = 400
-const MAX_WIDTH = 800
-const MIN_HEIGHT = 300
-const MAX_HEIGHT = 600
+const MIN_WIDTH = 600
+const MAX_WIDTH = 900
+const MIN_HEIGHT = 500
+const MAX_HEIGHT = 900
 
 export default function TerminalWindow() {
   const terminalState = useWindowStore((state) => state.windows.terminal)

@@ -34,17 +34,17 @@ if (typeof window !== "undefined") {
 
 // Size constraints for resume window
 const MIN_WIDTH = 500
-const MAX_WIDTH = 900
+const MAX_WIDTH = 825
 const MIN_HEIGHT = 400
-const MAX_HEIGHT = typeof window !== "undefined" ? window.innerHeight * 0.85 : 800
+const MAX_HEIGHT = typeof window !== "undefined" ? window.innerHeight * 0.91 : 675
 
 export default function ResumeWindow() {
   const resumeState = useWindowStore((state) => state.windows.resume)
   const focuswindow = useWindowStore((state) => state.focuswindow)
   const windowRef = useRef<HTMLDivElement>(null)
 
-  // Resize state
-  const [dimensions, setDimensions] = useState({ width: 700, height: 600 })
+  // Resize state - start at max size
+  const [dimensions, setDimensions] = useState({ width: MAX_WIDTH, height: MAX_HEIGHT })
   const isResizing = useRef(false)
   const resizeDirection = useRef("")
   const startPos = useRef({ x: 0, y: 0, width: 0, height: 0, left: 0, top: 0 })
@@ -135,7 +135,7 @@ export default function ResumeWindow() {
     const draggableInstance = Draggable.create(windowRef.current, {
       type: "x,y",
       bounds: "main",
-      trigger: "#window-header",
+      trigger: "#resume-window #window-header",
       cursor: "move",
       onPress: () => {
         focuswindow("resume")

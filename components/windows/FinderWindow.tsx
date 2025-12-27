@@ -12,7 +12,7 @@ if (typeof window !== "undefined") {
 }
 
 // Size constraints for finder window
-const MIN_WIDTH = 650
+const MIN_WIDTH = 675
 const MAX_WIDTH = 1200
 const MIN_HEIGHT = 400
 const DEFAULT_MAX_HEIGHT = 800

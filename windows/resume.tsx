@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Document, Page, pdfjs } from "react-pdf"
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react"
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download } from "lucide-react"
 import useWindowStore from "@/store/useWindowStore"
 
 // Configure PDF.js worker
@@ -14,7 +14,7 @@ const Resume = () => {
   const { closewindow, minimizewindow } = useWindowStore()
   const [numPages, setNumPages] = useState<number>(0)
   const [pageNumber, setPageNumber] = useState<number>(1)
-  const [scale, setScale] = useState<number>(1.0)
+  const [scale, setScale] = useState<number>(0.8)
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages)
@@ -79,6 +79,14 @@ const Resume = () => {
           <button onClick={zoomIn} disabled={scale >= 2.0} className="control-btn">
             <ZoomIn className="w-4 h-4" />
           </button>
+          <a
+            href="/files/resume.pdf"
+            download="resume.pdf"
+            className="control-btn ml-2"
+            title="Download Resume"
+          >
+            <Download className="w-4 h-4" />
+          </a>
         </div>
       </div>
 

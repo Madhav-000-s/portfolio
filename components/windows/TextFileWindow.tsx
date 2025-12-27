@@ -15,7 +15,7 @@ if (typeof window !== "undefined") {
 const MIN_WIDTH = 400
 const MAX_WIDTH = 900
 const MIN_HEIGHT = 300
-const MAX_HEIGHT = typeof window !== "undefined" ? window.innerHeight * 0.7 : 600
+const MAX_HEIGHT = typeof window !== "undefined" ? window.innerHeight * 0.9 : 600
 
 export default function TextFileWindow() {
   const txtfileState = useWindowStore((state) => state.windows.txtfile)

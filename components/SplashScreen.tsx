@@ -28,7 +28,7 @@ const preloadImages = [
 ]
 
 const textSequence = [
-  "Hello I Am Madhav",
+  "Hello, I Am Madhav",
   "Welcome To My Portfolio",
   "Have A Look Around",
 ]
