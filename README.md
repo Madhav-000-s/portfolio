@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio
 
-## Getting Started
+A linux-inspired developer portfolio built with Next.js, featuring an interactive desktop interface with draggable windows, a Finder-style file browser, and mini-games.
 
-First, run the development server:
+## Features
+
+- **Fedora linux Desktop GUI** - Dock, menubar, draggable/resizable windows
+- **Finder Window** - Browse projects fetched from GitHub with README previews
+- **Terminal** - Interactive skill showcase
+- **Mini-Games** - Snake, 2048, Memory, Tic-Tac-Toe
+- **Resume Viewer** - PDF viewer integration
+- **Contact Window** - Email contact form
+
+## Tech Stack
+
+- Next.js 16, React 19, TypeScript
+- Tailwind CSS, GSAP (animations)
+- Three.js / React Three Fiber (3D)
+- Zustand (state management)
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local`:
+```
+GITHUB_TOKEN=your_github_token
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Run development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Configuration
 
-## Learn More
+Edit `constants/index.ts` to customize:
+- `GITHUB_USERNAME` - Your GitHub username
+- `FEATURED_PROJECTS` - Additional repos to display in Projects (beyond pinned)
+- `CONTACT_EMAIL` - Your contact email
+- `techStack` - Skills displayed in terminal
+- `socials` - Social media links
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+├── app/              # Next.js app router
+├── components/       # UI components (Dock, Navbar, etc.)
+├── windows/          # Window content (Finder, Terminal, Games)
+├── constants/        # Configuration
+├── lib/              # GitHub API utilities
+├── store/            # Zustand state
+└── public/           # Static assets
+```

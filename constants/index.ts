@@ -104,6 +104,16 @@ const socials = [
 export const CONTACT_EMAIL = "madhavendranaths@gmail.com"
 export const GITHUB_USERNAME = "Madhav-000-s"
 
+// Add repo names here to feature them in Projects (alongside pinned repos)
+// Use exact names as they appear in your GitHub URLs
+export const FEATURED_PROJECTS: string[] = [
+  "portfolio",
+  "Parallel-water-quality-monitoring-system",
+  "Optimization-in-ML",
+  "Movie_app",
+  "CNN-BiLSTM-SMS_Spam_Slassification-Model",
+]
+
 export {
   navLinks,
   navIcons,
