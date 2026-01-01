@@ -6,7 +6,6 @@ import { Center } from "@react-three/drei"
 import gsap from "gsap"
 import TuxModel from "./TuxModel"
 import * as THREE from "three"
-import useWindowStore from "@/store/useWindowStore"
 
 interface HeroTextProps {
   startAnimation?: boolean
@@ -20,31 +19,7 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
   const idleTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isAnimatingRef = useRef(false)
   const initializedRef = useRef(false)
-  const anyWindowOpenRef = useRef(false)
   const hoverCountRef = useRef(0)
-  const triggerHoverRef = useRef<(() => void) | null>(null)
-  const prevWindowOpenRef = useRef(false)
-
-  // Track window state for disabling animations when windows are open
-  const anyWindowOpen = useWindowStore((state) =>
-    Object.values(state.windows).some(win => win.isOpen)
-  )
-
-  useEffect(() => {
-    // Detect when windows close (true -> false) while mouse is near
-    const wasOpen = prevWindowOpenRef.current
-    const isNowClosed = !anyWindowOpen
-
-    if (wasOpen && isNowClosed && isNearRef.current && !isAnimatingRef.current) {
-      // Windows just closed and mouse is near - trigger hover animation
-      if (triggerHoverRef.current) {
-        triggerHoverRef.current()
-      }
-    }
-
-    prevWindowOpenRef.current = anyWindowOpen
-    anyWindowOpenRef.current = anyWindowOpen
-  }, [anyWindowOpen])
 
   useEffect(() => {
     // Don't start animations until splash is complete
@@ -175,6 +150,7 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
         if (idleAnimationRef.current) {
           idleAnimationRef.current.kill()
           idleAnimationRef.current = null
+          isAnimatingRef.current = false
         }
         // Reset model position
         if (model) {
@@ -219,7 +195,7 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
 
       // Trigger alternating hover animation
       function triggerHoverAnimation() {
-        if (!model || isAnimatingRef.current || anyWindowOpenRef.current) return
+        if (!model || isAnimatingRef.current) return
 
         isAnimatingRef.current = true
         stopIdleCycle()
@@ -240,9 +216,6 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
           }
         })
       }
-
-      // Store in ref so it can be called when windows close
-      triggerHoverRef.current = triggerHoverAnimation
 
       // ==========================================
       // MOUSE INTERACTION
