@@ -55,6 +55,12 @@ const dockApps = [
     canOpen: true,
   },
   {
+    id: "games",
+    name: "Games",
+    icon: "games.png",
+    canOpen: true,
+  },
+  {
     id: "trash",
     name: "Archive",
     icon: "trash.png",

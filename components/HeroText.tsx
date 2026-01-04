@@ -20,6 +20,7 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
   const isAnimatingRef = useRef(false)
   const initializedRef = useRef(false)
   const hoverCountRef = useRef(0)
+  const triggerHoverAnimationRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     // Don't start animations until splash is complete
@@ -217,6 +218,9 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
         })
       }
 
+      // Store the function reference for click handler
+      triggerHoverAnimationRef.current = triggerHoverAnimation
+
       // ==========================================
       // MOUSE INTERACTION
       // ==========================================
@@ -297,7 +301,7 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
       ref={containerRef}
       className="absolute bottom-10 left-5"
     >
-      <div className="select-none">
+      <div className="select-none relative">
         <Canvas
           style={{ width: "400px", height: "450px" }}
           camera={{ position: [0, 0, 12], fov: 50 }}
@@ -314,6 +318,11 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
             </Center>
           </Suspense>
         </Canvas>
+        {/* Click overlay - captures clicks while allowing mouse tracking via window events */}
+        <div
+          className="absolute inset-0 cursor-pointer"
+          onClick={() => triggerHoverAnimationRef.current?.()}
+        />
       </div>
     </div>
   )

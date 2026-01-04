@@ -89,14 +89,13 @@ const Dock = () => {
 
                 // Special handling for Archive - opens Finder at Archive location
                 if (app.id === "trash") {
-                  const finderState = windows["finder"]
-                  if (finderState?.isOpen) {
-                    // If Finder is open, just update its data to navigate to Archive
-                    openwindow("finder", { location: "trash" })
-                  } else {
-                    // Open Finder with Archive location
-                    openwindow("finder", { location: "trash" })
-                  }
+                  openwindow("finder", { location: "trash" })
+                  return
+                }
+
+                // Special handling for Games - opens Finder at Games location
+                if (app.id === "games") {
+                  openwindow("finder", { location: "games" })
                   return
                 }
 
