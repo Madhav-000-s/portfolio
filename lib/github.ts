@@ -17,6 +17,11 @@ export interface ProjectFolder {
   icon: string
   kind: "folder"
   children: ProjectFile[]
+  // Extra repo metadata (used by the mobile Projects app; desktop finder ignores it)
+  language?: string | null
+  stars?: number
+  htmlUrl?: string
+  homepage?: string | null
 }
 
 export interface ProjectFile {
@@ -84,7 +89,7 @@ export async function fetchReadme(repoName: string): Promise<string | null> {
   try {
     const response = await fetch(
       `https://api.github.com/repos/${GITHUB_USERNAME}/${repoName}/readme`,
-      { headers }
+      { headers, next: { revalidate: 3600 } }
     )
 
     if (!response.ok) return null
@@ -192,6 +197,10 @@ export function transformReposToProjects(repos: GitHubRepo[]): ProjectFolder[] {
         icon: "/icons/folder.svg",
         kind: "folder" as const,
         children,
+        language: repo.language,
+        stars: repo.stargazers_count,
+        htmlUrl: repo.html_url,
+        homepage: repo.homepage,
       }
     })
 }

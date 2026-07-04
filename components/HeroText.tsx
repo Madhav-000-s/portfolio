@@ -14,19 +14,17 @@ interface HeroTextProps {
 export default function HeroText({ startAnimation = true }: HeroTextProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const modelRef = useRef<THREE.Group>(null)
-  const isNearRef = useRef(false)
   const idleAnimationRef = useRef<gsap.core.Timeline | null>(null)
   const idleTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isAnimatingRef = useRef(false)
   const initializedRef = useRef(false)
-  const hoverCountRef = useRef(0)
-  const triggerHoverAnimationRef = useRef<(() => void) | null>(null)
+  const clickCountRef = useRef(0)
+  const hasCompletedIdleRef = useRef(false)
+  const triggerClickAnimationRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     // Don't start animations until splash is complete
     if (!startAnimation) return
-
-    let mouseMoveHandler: ((e: MouseEvent) => void) | null = null
 
     // Poll until model is loaded
     const checkModelLoaded = setInterval(() => {
@@ -118,53 +116,37 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
         idleAnimationRef.current = animations[randomIndex]()!
         idleAnimationRef.current.eventCallback("onComplete", () => {
           isAnimatingRef.current = false
+          // Clicks are allowed once at least one idle animation has completed
+          hasCompletedIdleRef.current = true
           // Schedule next idle cycle
           scheduleNextIdleAnimation()
         })
       }
 
-      // Schedule the next idle animation after 5 seconds
+      // Schedule the next idle animation after a short pause
       function scheduleNextIdleAnimation() {
         if (idleTimeoutRef.current) {
           clearTimeout(idleTimeoutRef.current)
         }
         idleTimeoutRef.current = setTimeout(() => {
-          if (!isNearRef.current && !isAnimatingRef.current) {
+          if (!isAnimatingRef.current) {
             playRandomIdleAnimation()
           }
         }, 2000)
       }
 
-      
       // Start the idle cycle
       function startIdleCycle() {
         if (!model || isAnimatingRef.current) return
         scheduleNextIdleAnimation()
       }
 
-      // Stop all idle animations
-      function stopIdleCycle() {
-        if (idleTimeoutRef.current) {
-          clearTimeout(idleTimeoutRef.current)
-          idleTimeoutRef.current = null
-        }
-        if (idleAnimationRef.current) {
-          idleAnimationRef.current.kill()
-          idleAnimationRef.current = null
-          isAnimatingRef.current = false
-        }
-        // Reset model position
-        if (model) {
-          gsap.to(model.rotation, { x: 0, y: 0, z: 0, duration: 0.2 })
-        }
-      }
-
       // ==========================================
-      // HOVER ANIMATION SYSTEM (2 animations, alternating)
+      // CLICK ANIMATION SYSTEM (2 animations, alternating)
       // ==========================================
 
-      // Hover Animation 1: Jump Spin
-      function triggerHoverAnimation1() {
+      // Click Animation 1: Jump Spin
+      function playClickAnimation1() {
         if (!model) return
         return gsap.timeline()
           // Jump up
@@ -175,8 +157,8 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
           .to(model.position, { y: 0, duration: 0.6, ease: "bounce.out" }, "-=0.4")
       }
 
-      // Hover Animation 2: Excited Hop with Head Shake
-      function triggerHoverAnimation2() {
+      // Click Animation 2: Excited Hop with Head Shake
+      function playClickAnimation2() {
         if (!model) return
         return gsap.timeline()
           // Small hop
@@ -194,99 +176,41 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
           .to(model.rotation, { x: 0, duration: 0.35, ease: "power2.inOut" })
       }
 
-      // Trigger alternating hover animation
-      function triggerHoverAnimation() {
-        if (!model || isAnimatingRef.current) return
+      // Trigger alternating click animation.
+      // Ignored while any animation (entrance/idle/click) is running, and inert
+      // until Tux has completed at least one idle animation.
+      function triggerClickAnimation() {
+        if (!model || isAnimatingRef.current || !hasCompletedIdleRef.current) return
 
         isAnimatingRef.current = true
-        stopIdleCycle()
 
-        // Alternate between animations based on hover count
-        const isEvenHover = hoverCountRef.current % 2 === 0
-        hoverCountRef.current++
+        // Clear any pending idle animation while the click animation plays
+        if (idleTimeoutRef.current) {
+          clearTimeout(idleTimeoutRef.current)
+          idleTimeoutRef.current = null
+        }
 
-        const timeline = isEvenHover ? triggerHoverAnimation1() : triggerHoverAnimation2()
+        // Alternate between animations based on click count
+        const isEvenClick = clickCountRef.current % 2 === 0
+        clickCountRef.current++
+
+        const timeline = isEvenClick ? playClickAnimation1() : playClickAnimation2()
 
         timeline!.eventCallback("onComplete", () => {
           // Reset rotation for clean state
           model.rotation.y = 0
           isAnimatingRef.current = false
-          // Resume idle cycle if mouse is no longer near
-          if (!isNearRef.current) {
-            startIdleCycle()
-          }
+          // Resume idle cycle
+          startIdleCycle()
         })
       }
 
       // Store the function reference for click handler
-      triggerHoverAnimationRef.current = triggerHoverAnimation
-
-      // ==========================================
-      // MOUSE INTERACTION
-      // ==========================================
-
-      // Mouse follow effect with rotation
-      const rotationXTo = gsap.quickTo(model.rotation, "x", {
-        duration: 0.6,
-        ease: "power3.out",
-      })
-      const rotationYTo = gsap.quickTo(model.rotation, "y", {
-        duration: 0.6,
-        ease: "power3.out",
-      })
-
-      mouseMoveHandler = (e: MouseEvent) => {
-        if (!containerRef.current || !model) return
-
-        const rect = containerRef.current.getBoundingClientRect()
-        const centerX = rect.left + rect.width / 2
-        const centerY = rect.top + rect.height / 2
-
-        // Calculate distance from center
-        const deltaX = e.clientX - centerX
-        const deltaY = e.clientY - centerY
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
-
-        // Magnetic effect when within 200px
-        const maxDistance = 200
-        if (distance < maxDistance) {
-          if (!isNearRef.current) {
-            isNearRef.current = true
-            stopIdleCycle()
-            triggerHoverAnimation() // Play hover animation when mouse enters zone
-          }
-
-          // Only apply magnetic effect when NOT animating
-          if (!isAnimatingRef.current) {
-            const strength = 1 - distance / maxDistance
-            // Convert mouse position to rotation
-            const rotateY = (deltaX / maxDistance) * strength * 0.5
-            const rotateX = -(deltaY / maxDistance) * strength * 0.5
-
-            rotationYTo(rotateY)
-            rotationXTo(rotateX)
-          }
-        } else {
-          if (isNearRef.current) {
-            isNearRef.current = false
-            rotationYTo(0)
-            rotationXTo(0)
-            // Restart idle cycle after mouse leaves
-            if (!isAnimatingRef.current) {
-              setTimeout(startIdleCycle, 600)
-            }
-          }
-        }
-      }
-
-      window.addEventListener("mousemove", mouseMoveHandler)
+      triggerClickAnimationRef.current = triggerClickAnimation
     }
 
     return () => {
       clearInterval(checkModelLoaded)
-      if (mouseMoveHandler) {
-        window.removeEventListener("mousemove", mouseMoveHandler)
-      }
       if (idleAnimationRef.current) {
         idleAnimationRef.current.kill()
       }
@@ -299,11 +223,11 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
   return (
     <div
       ref={containerRef}
-      className="absolute bottom-10 left-5"
+      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
     >
       <div className="select-none relative">
         <Canvas
-          style={{ width: "400px", height: "450px" }}
+          style={{ width: "500px", height: "550px" }}
           camera={{ position: [0, 0, 12], fov: 50 }}
           gl={{ alpha: true, antialias: true }}
         >
@@ -314,14 +238,14 @@ export default function HeroText({ startAnimation = true }: HeroTextProps) {
             <pointLight position={[0, 7, 0]} intensity={2} />
             {/* Center wrapper for automatic model centering */}
             <Center>
-              <TuxModel ref={modelRef} scale={0.06} />
+              <TuxModel ref={modelRef} scale={0.085} />
             </Center>
           </Suspense>
         </Canvas>
-        {/* Click overlay - captures clicks while allowing mouse tracking via window events */}
+        {/* Click overlay - captures clicks to trigger click animations */}
         <div
           className="absolute inset-0 cursor-pointer"
-          onClick={() => triggerHoverAnimationRef.current?.()}
+          onClick={() => triggerClickAnimationRef.current?.()}
         />
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react"
 import gsap from "gsap"
 import { Draggable } from "gsap/Draggable"
 import useWindowStore from "@/store/useWindowStore"
@@ -15,7 +15,7 @@ if (typeof window !== "undefined") {
 const MIN_WIDTH = 400
 const MAX_WIDTH = 900
 const MIN_HEIGHT = 300
-const MAX_HEIGHT = typeof window !== "undefined" ? window.innerHeight * 0.9 : 600
+const getMaxHeight = () => window.innerHeight * 0.9
 
 export default function TextFileWindow() {
   const txtfileState = useWindowStore((state) => state.windows.txtfile)
@@ -27,6 +27,7 @@ export default function TextFileWindow() {
 
   // Resize state
   const [dimensions, setDimensions] = useState({ width: 600, height: 450 })
+  const [position, setPosition] = useState({ top: 64, left: 0 })
   const isResizing = useRef(false)
   const resizeDirection = useRef("")
   const startPos = useRef({ x: 0, y: 0, width: 0, height: 0, left: 0, top: 0 })
@@ -34,9 +35,17 @@ export default function TextFileWindow() {
   // Update dimensions when maxSize flag changes (e.g., opening a README)
   useEffect(() => {
     if (shouldMaxSize) {
-      setDimensions({ width: MAX_WIDTH, height: MAX_HEIGHT })
+      setDimensions({ width: MAX_WIDTH, height: getMaxHeight() })
     }
   }, [shouldMaxSize])
+
+  // Center the window horizontally when it opens (like the resume window).
+  // Computed once at open, not from live width — E/W resizing must not shift it.
+  useLayoutEffect(() => {
+    if (!txtfileState?.isOpen) return
+    const openWidth = txtfileState?.data?.maxSize ? MAX_WIDTH : 600
+    setPosition({ top: 64, left: Math.max(16, (window.innerWidth - openWidth) / 2) })
+  }, [txtfileState?.isOpen, txtfileState?.data?.maxSize])
 
   const handleResizeMove = useCallback((e: MouseEvent) => {
     if (!isResizing.current || !windowRef.current) return
@@ -61,13 +70,14 @@ export default function TextFileWindow() {
       newWidth = startPos.current.width - widthDelta
       newLeft = startPos.current.left + widthDelta
     }
+    const maxHeight = getMaxHeight()
     if (dir.includes("s")) {
-      newHeight = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, startPos.current.height + deltaY))
+      newHeight = Math.min(maxHeight, Math.max(MIN_HEIGHT, startPos.current.height + deltaY))
     }
     if (dir.includes("n")) {
       const heightDelta = Math.min(
         startPos.current.height - MIN_HEIGHT,
-        Math.max(startPos.current.height - MAX_HEIGHT, deltaY)
+        Math.max(startPos.current.height - maxHeight, deltaY)
       )
       newHeight = startPos.current.height - heightDelta
       newTop = startPos.current.top + heightDelta
@@ -146,8 +156,8 @@ export default function TextFileWindow() {
         zIndex: txtfileState.zIndex,
         width: dimensions.width,
         height: dimensions.height,
-        top: "150px",
-        left: "40%",
+        top: position.top,
+        left: position.left,
       }}
       className="absolute"
       onClick={() => focuswindow("txtfile")}

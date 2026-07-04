@@ -32,22 +32,32 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(Draggable)
 }
 
-// Size constraints for resume window
-const MIN_WIDTH = 500
-const MAX_WIDTH = 825
-const MIN_HEIGHT = 400
-const MAX_HEIGHT = typeof window !== "undefined" ? window.innerHeight * 0.91 : 675
+// Size constraints for resume window. Max follows the live viewport so the
+// window can grow near-fullscreen and adapts if the browser is resized.
+const MIN_WIDTH = 450
+const MIN_HEIGHT = 350
+const DEFAULT_WIDTH = 825
+const getMaxSize = () => ({
+  width: Math.min(1400, window.innerWidth * 0.95),
+  height: window.innerHeight * 0.91,
+})
 
 export default function ResumeWindow() {
   const resumeState = useWindowStore((state) => state.windows.resume)
   const focuswindow = useWindowStore((state) => state.focuswindow)
   const windowRef = useRef<HTMLDivElement>(null)
 
-  // Resize state - start at max size
-  const [dimensions, setDimensions] = useState({ width: MAX_WIDTH, height: MAX_HEIGHT })
+  // Resize state (SSR-safe default; corrected to the viewport on open)
+  const [dimensions, setDimensions] = useState({ width: DEFAULT_WIDTH, height: 675 })
   const isResizing = useRef(false)
   const resizeDirection = useRef("")
   const startPos = useRef({ x: 0, y: 0, width: 0, height: 0, left: 0, top: 0 })
+
+  // Open at default width, near-full height for the current viewport
+  useEffect(() => {
+    if (!resumeState?.isOpen) return
+    setDimensions({ width: DEFAULT_WIDTH, height: getMaxSize().height })
+  }, [resumeState?.isOpen])
 
   const handleResizeMove = useCallback((e: MouseEvent) => {
     if (!isResizing.current || !windowRef.current) return
@@ -61,24 +71,25 @@ export default function ResumeWindow() {
     let newLeft = startPos.current.left
     let newTop = startPos.current.top
 
+    const max = getMaxSize()
     if (dir.includes("e")) {
-      newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startPos.current.width + deltaX))
+      newWidth = Math.min(max.width, Math.max(MIN_WIDTH, startPos.current.width + deltaX))
     }
     if (dir.includes("w")) {
       const widthDelta = Math.min(
         startPos.current.width - MIN_WIDTH,
-        Math.max(startPos.current.width - MAX_WIDTH, deltaX)
+        Math.max(startPos.current.width - max.width, deltaX)
       )
       newWidth = startPos.current.width - widthDelta
       newLeft = startPos.current.left + widthDelta
     }
     if (dir.includes("s")) {
-      newHeight = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, startPos.current.height + deltaY))
+      newHeight = Math.min(max.height, Math.max(MIN_HEIGHT, startPos.current.height + deltaY))
     }
     if (dir.includes("n")) {
       const heightDelta = Math.min(
         startPos.current.height - MIN_HEIGHT,
-        Math.max(startPos.current.height - MAX_HEIGHT, deltaY)
+        Math.max(startPos.current.height - max.height, deltaY)
       )
       newHeight = startPos.current.height - heightDelta
       newTop = startPos.current.top + heightDelta

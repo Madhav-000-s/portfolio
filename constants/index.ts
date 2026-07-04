@@ -152,6 +152,14 @@ const ABOUT_LOCATION = {
       fileType: "readme",
       repoName: "Madhav-000-s", // Profile repo (same as username)
     },
+    {
+      id: 2,
+      name: "GitHub",
+      icon: "/icons/github.svg",
+      kind: "file",
+      fileType: "url",
+      href: "https://github.com/Madhav-000-s",
+    },
   ],
 }
 

@@ -14,7 +14,7 @@ const Resume = () => {
   const { closewindow, minimizewindow } = useWindowStore()
   const [numPages, setNumPages] = useState<number>(0)
   const [pageNumber, setPageNumber] = useState<number>(1)
-  const [scale, setScale] = useState<number>(0.8)
+  const [scale, setScale] = useState<number>(1.0)
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages)
@@ -30,11 +30,11 @@ const Resume = () => {
   }
 
   const zoomIn = () => {
-    setScale((prev) => Math.min(prev + 0.2, 2.0))
+    setScale((prev) => Math.min(Math.round((prev + 0.1) * 10) / 10, 2.0))
   }
 
   const zoomOut = () => {
-    setScale((prev) => Math.max(prev - 0.2, 0.5))
+    setScale((prev) => Math.max(Math.round((prev - 0.1) * 10) / 10, 0.5))
   }
 
   return (
@@ -75,7 +75,13 @@ const Resume = () => {
           <button onClick={zoomOut} disabled={scale <= 0.5} className="control-btn">
             <ZoomOut className="w-4 h-4" />
           </button>
-          <span className="text-sm text-gray-600">{Math.round(scale * 100)}%</span>
+          <button
+            onClick={() => setScale(1.0)}
+            title="Reset zoom to 100%"
+            className="text-sm text-gray-600 cursor-pointer hover:text-gray-400 transition-colors"
+          >
+            {Math.round(scale * 100)}%
+          </button>
           <button onClick={zoomIn} disabled={scale >= 2.0} className="control-btn">
             <ZoomIn className="w-4 h-4" />
           </button>

@@ -17,8 +17,8 @@ import TicTacToeWindow from "@/components/windows/TicTacToeWindow"
 import SplashScreen from "@/components/SplashScreen"
 import LoginScreen from "@/components/LoginScreen"
 import WelcomeTransition from "@/components/WelcomeTransition"
+import MobileHome from "@/components/mobile/MobileHome"
 import useAuthStore from "@/store/useAuthStore"
-import { CONTACT_EMAIL } from "@/constants"
 
 type Stage = "splash" | "login" | "transition" | "desktop"
 
@@ -52,68 +52,9 @@ export default function Home() {
 
   return (
     <main>
-      {/* Mobile fallback - shown only on small screens */}
-      <div className="flex md:hidden min-h-dvh w-dvw flex-col items-center justify-center bg-black text-white p-8">
-        <div className="text-center space-y-6 max-w-sm">
-          {/* Name & Title */}
-          <div>
-            <h1 className="text-3xl font-bold">Madhavendranath</h1>
-            <p className="text-gray-400 mt-1">Full-Stack Developer & ML Engineer</p>
-          </div>
-
-          {/* About */}
-          <p className="text-gray-300 text-sm leading-relaxed">
-            Building AI-powered web applications with Next.js, React, TypeScript, and Python.
-            Creating immersive experiences with GSAP and Three.js.
-          </p>
-
-          {/* GitHub - highlighted CTA */}
-          <a
-            href="https://github.com/Madhav-000-s"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-black rounded-lg font-medium animate-bounce hover:scale-105 transition-transform"
-          >
-            <img src="/icons/github.svg" alt="GitHub" className="w-5 h-5 invert" />
-            View My GitHub
-          </a>
-
-          {/* Desktop notice - emphasized */}
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-            <p className="text-yellow-400 text-sm font-medium">
-              This site is designed for desktop
-            </p>
-            <p className="text-gray-400 text-xs mt-1">
-              Visit on a larger screen for the full interactive experience
-            </p>
-          </div>
-
-          {/* Small links at bottom */}
-          <div className="flex justify-center gap-6 text-sm text-gray-500 pt-4">
-            <a
-              href="/files/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              Resume
-            </a>
-            <a
-              href="https://www.linkedin.com/in/madhavendranath-s/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              LinkedIn
-            </a>
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="hover:text-white transition-colors"
-            >
-              Email
-            </a>
-          </div>
-        </div>
+      {/* Mobile phone-OS experience - shown only on small screens */}
+      <div className="md:hidden">
+        <MobileHome />
       </div>
 
       {/* Desktop content - hidden on small screens */}
