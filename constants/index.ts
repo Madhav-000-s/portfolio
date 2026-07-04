@@ -113,11 +113,17 @@ export const GITHUB_USERNAME = "Madhav-000-s"
 // Add repo names here to feature them in Projects (alongside pinned repos)
 // Use exact names as they appear in your GitHub URLs
 export const FEATURED_PROJECTS: string[] = [
+  "Multi-Asset-Portfolio-Optimization",
+  "RAG-research-paper-Intelligence-engine",
+  "quintessence-pens",
+  "Stonks",
+  "AirCtl",
+  "WC-match-outcome-predictor",
+  "turbo-prompt",
+  "CUDA-inference-engine-with-PTX-finetuning",
+  "ELF-Linker-for-a-Custom-Object-Format",
+  "mini-c-compiler-with-LLVM-backend",
   "portfolio",
-  "Parallel-water-quality-monitoring-system",
-  "Optimization-in-ML",
-  "Movie_app",
-  "CNN-BiLSTM-SMS_Spam_Slassification-Model",
 ]
 
 export {
